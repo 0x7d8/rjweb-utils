@@ -2,6 +2,7 @@ export * as array from "./array"
 export * as string from "./string"
 export * as number from "./number"
 export * as object from "./object"
+export * as network from "./network"
 export * as filesystem from "./filesystem"
 
 /** @ts-ignore */

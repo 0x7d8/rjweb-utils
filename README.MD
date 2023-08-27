@@ -82,6 +82,14 @@ const result = string.hash('Hello', {
 })
 ```
 
+Check if a Host is reachable
+```js
+const { network } = require('@rjweb/utils')
+
+// host, port, timeout ms
+const result = await network.test('127.0.0.1', 80, 5000)
+```
+
 Parsing Options
 ```js
 const { object } = require('@rjweb/utils')
