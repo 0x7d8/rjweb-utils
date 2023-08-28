@@ -1,3 +1,7 @@
+## 1.3.1
+
+- Add `system.cpu`
+
 ## 1.3.0
 
 - Add `number.round`
