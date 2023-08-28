@@ -1,3 +1,7 @@
+## 1.4.1
+
+- Add `queue.Queue.addAndWaitForFinish`
+
 ## 1.4.0
 
 - Add `queue`

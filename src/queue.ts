@@ -1,4 +1,6 @@
-import { DeepRequired } from "."
+import { DeepRequired, array } from "."
+
+type Function = (...args: any[]) => any
 
 /**
  * A Queue to schedule function calls for later
@@ -10,6 +12,7 @@ import { DeepRequired } from "."
  *   wait: 1000
  * })
  * 
+ * mails.add(() => sendMail()) // will execute after 0ms
  * mails.add(() => sendMail()) // will execute after 1000ms
  * mails.add(() => sendMail()) // will execute after 2000ms
  * mails.add(() => sendMail()) // will execute after 3000ms
@@ -26,8 +29,10 @@ import { DeepRequired } from "."
 	*/ wait?: number
 }> {
 	private nextRunScheduled: boolean
+	private lastRun: number = 0
 	private queue: Function[] = []
 	private options: DeepRequired<Options>
+	private fnWaiters: [fn: Function, callback: (type: 'resolve' | 'reject', data: any) => void][] = []
 	private onFinish: null | ((fn: Function, result: unknown) => Promise<any> | any) = null
 	private onError: null | ((fn: Function, error: unknown) => Promise<any> | any) = null
 
@@ -70,7 +75,10 @@ import { DeepRequired } from "."
 	*/ public add(fn: Function): this {
 		this.queue.push(fn)
 
-		if (!this.nextRunScheduled) {
+		if (this.lastRun + this.options.wait < Date.now()) {
+			this.lastRun = Date.now()
+			this.runNextQueueItem()
+		} else if (!this.nextRunScheduled) {
 			this.nextRunScheduled = true
 			setTimeout(() => this.runNextQueueItem(), this.options.wait)
 		}
@@ -78,10 +86,27 @@ import { DeepRequired } from "."
 		return this
 	}
 
+	/**
+	 * Add & Wait for the function to be finished
+	 * @since 1.4.1
+	*/ public addAndWaitForFinish<Fn extends Function>(fn: Fn): Promise<Awaited<ReturnType<Fn>>> {
+		return new Promise((resolve, reject) => {
+			this.fnWaiters.push([
+				fn, (type, data) => {
+					if (type === 'resolve') return resolve(data)
+					else return reject(data)
+				}
+			])
+
+			this.add(fn)
+		})
+	}
+
 	private async runNextQueueItem() {
 		const item = this.queue[0]
 		this.queue = this.queue.slice(1)
 		this.nextRunScheduled = false
+		this.lastRun = Date.now()
 
 		if (this.queue.length) {
 			this.nextRunScheduled = true
@@ -93,10 +118,26 @@ import { DeepRequired } from "."
 			if (this.onFinish) try {
 				this.onFinish(item, result)
 			} catch { }
+
+			const waiter = this.fnWaiters.find(([ fn ]) => Object.is(fn, item))
+			if (waiter) {
+				const [ fn, callback ] = waiter
+
+				callback('resolve', result)
+				this.fnWaiters = array.remove(this.fnWaiters, 'value', waiter)
+			}
 		} catch (err) {
 			if (this.onError) try {
 				this.onError(item, err)
 			} catch { }
+
+			const waiter = this.fnWaiters.find(([ fn ]) => Object.is(fn, item))
+			if (waiter) {
+				const [ fn, callback ] = waiter
+
+				callback('reject', err)
+				this.fnWaiters = array.remove(this.fnWaiters, 'value', waiter)
+			}
 		}
 	}
 }
