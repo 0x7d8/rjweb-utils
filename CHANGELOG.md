@@ -1,3 +1,7 @@
+## 1.1.2
+
+- Added bcrypt related functions
+
 ## 1.1.1
 
 - Make `network.test` return ms if success

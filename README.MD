@@ -82,6 +82,25 @@ const result = string.hash('Hello', {
 })
 ```
 
+Hashing a String using bcrypt
+```js
+const { string } = require('@rjweb/utils')
+
+const result = string.hashBCrypt('Hello', {
+  rounds: 5,
+  async: false
+})
+```
+
+Comparing a Hashed String using bcrypt
+```js
+const { string } = require('@rjweb/utils')
+
+const result = string.compareBCrypt('Hello', '$2b$05$vi7.v6gPf6IIzumgUEbMyes8yZ0v8.8U0QaZZfXcldhrjiajBD2v2', {
+  async: false
+})
+```
+
 Check if a Host is reachable
 ```js
 const { network } = require('@rjweb/utils')
