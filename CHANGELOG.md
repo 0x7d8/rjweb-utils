@@ -1,3 +1,9 @@
+## 1.3.0
+
+- Add `number.round`
+- Add `array.sum`
+- Add `system`
+
 ## 1.2.0
 
 - Add `number.percent`

@@ -32,3 +32,18 @@
 
 	return input
 }
+
+/**
+ * Get the Sum of Numbers in an Array
+ * @example
+ * ```
+ * import { array } from "@rjweb/utils"
+ * 
+ * const arr = [1, 2, 3, 4, 5]
+ * 
+ * array.sum(arr) // 15
+ * ```
+ * @since 1.3.0
+*/ export function sum(input: number[]): number {
+	return input.reduce((prev, current) => prev + current, 0)
+}

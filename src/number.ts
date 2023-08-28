@@ -12,6 +12,21 @@
 }
 
 /**
+ * Round a Number
+ * @example
+ * ```
+ * import { number } from "@rjweb/utils"
+ * 
+ * number.round(10.32659395235, 2) // 10.33
+ * ```
+ * @since 1.3.0
+*/ export function round(input: number, decimals: number): number {
+	const offset = Math.pow(10, Math.floor(decimals))
+
+	return Math.round(input * offset) / offset
+}
+
+/**
  * Apply % to a number
  * @example
  * ```
