@@ -10,6 +10,7 @@ import { as } from "."
  * 
  * filesystem.getFiles('./src', { recursive: true, async: false, stat: false }) // ['./src/index.ts', ...]
  * ```
+ * @throws If an `fs` error occurs
  * @since 1.0.0
 */ export function getFiles<Options extends {
 	/**
@@ -61,8 +62,8 @@ import { as } from "."
 				}
 
 				resolve(files)
-			} catch {
-				reject()
+			} catch (err) {
+				reject(err)
 			}
 		}) as never
 	} else {

@@ -4,6 +4,7 @@ export * as number from "./number"
 export * as object from "./object"
 export * as network from "./network"
 export * as system from "./system"
+export * as queue from "./queue"
 export * as filesystem from "./filesystem"
 
 /** @ts-ignore */

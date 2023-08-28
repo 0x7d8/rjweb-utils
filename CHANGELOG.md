@@ -1,3 +1,7 @@
+## 1.4.0
+
+- Add `queue`
+
 ## 1.3.1
 
 - Add `system.cpu`
