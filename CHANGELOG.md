@@ -1,3 +1,9 @@
+## 1.2.0
+
+- Add `number.percent`
+- Add `number.change`
+- Fix JSDocs
+
 ## 1.1.2
 
 - Added bcrypt related functions

@@ -1,6 +1,6 @@
 /**
  * Remove something from an Array
- * @default
+ * @example
  * ```
  * import { array } from "@rjweb/utils"
  * 

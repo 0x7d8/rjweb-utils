@@ -2,7 +2,7 @@ import * as net from "net"
 
 /**
  * Check the Connection (Time) to a Host + Port
- * @default
+ * @example
  * ```
  * import { network } from "@rjweb/utils"
  * 
@@ -45,7 +45,7 @@ import * as net from "net"
 
 /**
  * Check if an IP is valid
- * @default
+ * @example
  * ```
  * import { network } from "@rjweb/utils"
  * 

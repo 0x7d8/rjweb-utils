@@ -70,7 +70,7 @@ const _string = (options: Record<string, any>) => {
 
 /**
  * Hash a String
- * @default
+ * @example
  * ```
  * import { string } from "@rjweb/utils"
  * 
@@ -111,7 +111,7 @@ const _string = (options: Record<string, any>) => {
 
 /**
  * Hash a String using bcrypt
- * @default
+ * @example
  * ```
  * import { string } from "@rjweb/utils"
  * 
@@ -146,7 +146,7 @@ const _string = (options: Record<string, any>) => {
 
 /**
  * Compare a String using bcrypt
- * @default
+ * @example
  * ```
  * import { string } from "@rjweb/utils"
  * 
@@ -175,7 +175,7 @@ const _string = (options: Record<string, any>) => {
 
 /**
  * Encrypt a String
- * @default
+ * @example
  * ```
  * import { string } from "@rjweb/utils"
  * 
@@ -214,7 +214,7 @@ const _string = (options: Record<string, any>) => {
 
 /**
  * Decrypt a String
- * @default
+ * @example
  * ```
  * import { string } from "@rjweb/utils"
  * 
@@ -248,7 +248,7 @@ const _string = (options: Record<string, any>) => {
 
 /**
  * Generate a Random String
- * @default
+ * @example
  * ```
  * import { string } from "@rjweb/utils"
  * 
@@ -292,7 +292,7 @@ const _string = (options: Record<string, any>) => {
 
 /**
  * Generate a String with Random Segments
- * @default
+ * @example
  * ```
  * import { string } from "@rjweb/utils"
  * 
@@ -331,7 +331,7 @@ const _string = (options: Record<string, any>) => {
 
 /**
  * Limit a String
- * @default
+ * @example
  * ```
  * import { string } from "@rjweb/utils"
  * 

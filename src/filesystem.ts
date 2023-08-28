@@ -4,7 +4,7 @@ import { as } from "."
 
 /**
  * Get Files from a folder
- * @default
+ * @example
  * ```
  * import { filesystem } from "@rjweb/utils"
  * 
