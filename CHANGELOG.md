@@ -1,3 +1,7 @@
+## 1.4.2
+
+- Run next queue item after last one finished
+
 ## 1.4.1
 
 - Add `queue.Queue.addAndWaitForFinish`

@@ -106,12 +106,6 @@ type Function = (...args: any[]) => any
 		const item = this.queue[0]
 		this.queue = this.queue.slice(1)
 		this.nextRunScheduled = false
-		this.lastRun = Date.now()
-
-		if (this.queue.length) {
-			this.nextRunScheduled = true
-			setTimeout(() => this.runNextQueueItem(), this.options.wait)
-		}
 
 		try {
 			const result = await Promise.resolve(item())
@@ -121,7 +115,7 @@ type Function = (...args: any[]) => any
 
 			const waiter = this.fnWaiters.find(([ fn ]) => Object.is(fn, item))
 			if (waiter) {
-				const [ fn, callback ] = waiter
+				const [ _, callback ] = waiter
 
 				callback('resolve', result)
 				this.fnWaiters = array.remove(this.fnWaiters, 'value', waiter)
@@ -133,10 +127,16 @@ type Function = (...args: any[]) => any
 
 			const waiter = this.fnWaiters.find(([ fn ]) => Object.is(fn, item))
 			if (waiter) {
-				const [ fn, callback ] = waiter
+				const [ _, callback ] = waiter
 
 				callback('reject', err)
 				this.fnWaiters = array.remove(this.fnWaiters, 'value', waiter)
+			}
+		} finally {
+			this.lastRun = Date.now()
+			if (this.queue.length) {
+				this.nextRunScheduled = true
+				setTimeout(() => this.runNextQueueItem(), this.options.wait)
 			}
 		}
 	}
