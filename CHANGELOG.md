@@ -1,3 +1,7 @@
+## 1.4.3
+
+- More Queue Improvements
+
 ## 1.4.2
 
 - Run next queue item after last one finished
