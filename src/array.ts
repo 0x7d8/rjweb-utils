@@ -34,6 +34,28 @@
 }
 
 /**
+ * Rotate an Array
+ * @example
+ * ```
+ * import { array } from "@rjweb/utils"
+ * 
+ * const arr = ['A', 'B', 'C', 'D', 'E']
+ * 
+ * array.rotate(arr, 2) // ['C', 'D', 'E', 'A', 'B']
+ * array.rotate(arr, 4) // ['E', 'A', 'B', 'C', 'D']
+ * ```
+ * @since 1.4.4
+*/ export function rotate<Arr extends any[]>(input: Arr, rotations: number): Arr {
+	const arr = Array.from(input) as Arr
+
+	for (let i = 0; i < rotations; i++) {
+    arr.push(arr.shift())
+  }
+
+  return arr
+}
+
+/**
  * Get the Sum of Numbers in an Array
  * @example
  * ```

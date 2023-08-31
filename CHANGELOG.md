@@ -1,3 +1,7 @@
+## 1.4.4
+
+- Add `array.rotate`
+
 ## 1.4.3
 
 - More Queue Improvements
