@@ -1,3 +1,7 @@
+## 1.4.5
+
+- Add `array.average`
+
 ## 1.4.4
 
 - Add `array.rotate`

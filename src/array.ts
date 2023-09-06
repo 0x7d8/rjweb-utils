@@ -56,6 +56,21 @@
 }
 
 /**
+ * Get the Average of all Numbers in an Array
+ * @example
+ * ```
+ * import { array } from "@rjweb/utils"
+ * 
+ * const arr = [4, 65, 76, 90, 1, -3]
+ * 
+ * array.average(arr) // 38.833333333333336
+ * ```
+ * @since 1.4.5
+*/ export function average(input: number[]) : number {
+	return input.reduce((prev, current) => prev + current, 0) / input.length
+}
+
+/**
  * Get the Sum of Numbers in an Array
  * @example
  * ```
