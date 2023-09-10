@@ -1,3 +1,8 @@
+## 1.5.0
+
+- Add `number.limit`
+- Add `time`
+
 ## 1.4.5
 
 - Add `array.average`

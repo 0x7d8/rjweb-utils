@@ -53,3 +53,19 @@
 */ export function change(input: number, changed: number): number {
 	return Math.round((((changed - input) / input) * 100) * 10) / 10
 }
+
+/**
+ * Limit a Number
+ * @example
+ * ```
+ * import { number } from "@rjweb/utils"
+ * 
+ * number.limit(100, 40) // 40
+ * number.limit(100, 2000) // 100
+ * number.limit(1042, 1000) // 1000
+ * ```
+ * @since 1.5.0
+*/ export function limit(input: number, max: number): number {
+	if (input > max) return max
+	else return input
+}
