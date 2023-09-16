@@ -1,3 +1,7 @@
+## 1.5.1
+
+- Remove bcrypt
+
 ## 1.5.0
 
 - Add `number.limit`

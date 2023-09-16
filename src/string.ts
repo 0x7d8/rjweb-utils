@@ -1,5 +1,4 @@
 import * as crypto from "crypto"
-import * as bcrypt from "bcrypt"
 
 let randomIndex: number
 let randomBytes: Buffer
@@ -107,70 +106,6 @@ const _string = (options: Record<string, any>) => {
 	else out = hash.digest(pOptions.output)
 
 	return out as any
-}
-
-/**
- * Hash a String using bcrypt
- * @example
- * ```
- * import { string } from "@rjweb/utils"
- * 
- * string.hashBCrypt('Hello', { rounds: 5, async: false }) // $2b$05$vi7.v6gPf6IIzumgUEbMyes8yZ0v8.8U0QaZZfXcldhrjiajBD2v2
- * ```
- * @since 1.1.2
-*/ export function hashBCrypt<Options extends {
-	/**
-	 * The Amount of Rounds to Salt
-	 * @default 5
-	 * @since 1.1.2
-	*/ rounds?: number
-	/**
-	 * Whether to run bcrypt async
-	 * @default true
-	 * @since 1.1.2
-	*/ async?: boolean
-}>(input: string, options?: Options): Options['async'] extends false ? string : Promise<string> {
-	const pOptions = {
-		rounds: options?.rounds ?? 5,
-		async: options?.async ?? true
-	}
-
-	if (pOptions.async) {
-		return new Promise(async(resolve) => {
-			return resolve(bcrypt.hash(input, pOptions.rounds))
-		}) as any
-	} else {
-		return bcrypt.hashSync(input, pOptions.rounds) as any
-	}
-}
-
-/**
- * Compare a String using bcrypt
- * @example
- * ```
- * import { string } from "@rjweb/utils"
- * 
- * string.compareBCrypt('Hello', '$2b$05$vi7.v6gPf6IIzumgUEbMyes8yZ0v8.8U0QaZZfXcldhrjiajBD2v2', { async: false }) // true
- * ```
- * @since 1.1.2
-*/ export function compareBCrypt<Options extends {
-	/**
-	 * Whether to run bcrypt async
-	 * @default true
-	 * @since 1.1.2
-	*/ async?: boolean
-}>(input: string, hash: string, options?: Options): Options['async'] extends false ? boolean : Promise<boolean> {
-	const pOptions = {
-		async: options?.async ?? true
-	}
-
-	if (pOptions.async) {
-		return new Promise(async(resolve) => {
-			return resolve(bcrypt.compare(input, hash))
-		}) as any
-	} else {
-		return bcrypt.hashSync(input, hash) as any
-	}
 }
 
 /**
