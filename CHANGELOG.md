@@ -1,3 +1,7 @@
+## 1.5.2
+
+- Add `array.limit`
+
 ## 1.5.1
 
 - Remove bcrypt

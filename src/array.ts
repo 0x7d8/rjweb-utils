@@ -84,3 +84,18 @@
 */ export function sum(input: number[]): number {
 	return input.reduce((prev, current) => prev + current, 0)
 }
+
+/**
+ * Limit an Array
+ * @example
+ * ```
+ * import { array } from "@rjweb/utils"
+ * 
+ * array.limit([1, 2, 3, 4, 5, 6, 7], 5) // [1, 2, 3, 4, 5, '...']
+ * array.limit([1, 2, 3, 4, 5, 6, 7], 5, '!') // [1, 2, 3, 4, 5, '!']
+ * ```
+ * @since 1.5.2
+*/ export function limit<Arr extends any[], End extends any = '...'>(input: Arr, length: number, end?: End): [...Arr, End] {
+	if (input.length <= length) return input as never
+	else return input.slice(0, length).concat(end ?? '...') as never
+}

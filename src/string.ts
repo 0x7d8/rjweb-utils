@@ -278,8 +278,8 @@ const _string = (options: Record<string, any>) => {
  * ```
  * @since 1.0.0
 */ export function limit(input: string, length: number, end: string = '...'): string {
-	const trimmed = input.trim()
+	const trimmed = input.trimStart()
 	
 	if (trimmed.length < length) return trimmed
-	else return trimmed.slice(0, length) + end
+	else return (trimmed.slice(0, length) + end).trimEnd()
 }
