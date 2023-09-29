@@ -1,3 +1,8 @@
+## 1.5.3
+
+- Add `time.fn`
+- Add typedocs
+
 ## 1.5.2
 
 - Add `array.limit`

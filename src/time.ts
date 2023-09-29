@@ -1,4 +1,5 @@
 import { Multiply } from "ts-arithmetic"
+import { isPromise } from "util/types"
 
 class Time<Amount extends number> {
 	private amount: Amount
@@ -103,5 +104,29 @@ class Time<Amount extends number> {
 	 * @since 1.5.0
 	*/ wait(ms: number): Promise<void> {
 		return new Promise((resolve) => setTimeout(resolve, ms))
+	},
+
+	/**
+	 * See how long a function takes to run
+	 * @example
+	 * ```
+	 * import { time } from "@rjweb/utils"
+	 * 
+	 * const [ time, result ] = time.fn(async() => {
+	 *   await time.wait(time(20).s())
+	 * })
+	 * 
+	 * console.log(time, result) // 20000 undefined
+	 * ```
+	 * @since 1.5.3
+	*/ fn<Fn extends () => Promise<any> | any>(fn: Fn): Fn extends () => Promise<infer R> ? Promise<[ number, Awaited<R> ]> : Fn extends () => infer R ? [ number, R ] : never {
+		const startTime = performance.now()
+
+		const res = fn()
+		if (isPromise(res)) return new Promise(async(resolve) => {
+			const asyncRes = await res
+			return resolve([ performance.now() - startTime, asyncRes ])
+		}) as any
+		else return [ performance.now() - startTime, res ] as any
 	}
 })

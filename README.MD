@@ -1,14 +1,7 @@
 <h1 align="center">Welcome to @rjweb/utils 👋</h1>
 <center>
-  <a href="https://www.npmjs.com/package/@rjweb/utils" target="_blank">
-    <img alt="Version" src="https://img.shields.io/npm/v/@rjweb/utils.svg">
-  </a>
-  <a href="https://github.com/rotvproHD/rjweb-utils#readme" target="_blank">
-    <img alt="Documentation" src="https://img.shields.io/badge/documentation-yes-brightgreen.svg" />
-  </a>
-  <a href="https://github.com/rotvproHD/rjweb-utils/graphs/commit-activity" target="_blank">
-    <img alt="Maintenance" src="https://img.shields.io/badge/Maintained%3F-yes-green.svg" />
-  </a>
+
+  [<img src="https://img.rjansen.de/rjweb/types.svg" height="75px" style="margin-top:0px;margin-left:-15px;">](https://types.rjweb-utils.rjansen.de)
 
   Easy and Lightweight Utilities
 </center>
@@ -30,106 +23,7 @@ pnpm add @rjweb/utils
 
 ## Example Usage
 
-Generating a Random Number in Range
-```js
-const { number } = require('@rjweb/utils')
-
-const min = 50
-const max = 100
-
-const result = number.generate(min, max)
-```
-
-Generating a Random String
-```js
-const { string } = require('@rjweb/utils')
-
-const result = string.generate({
-  length: 25,
-  numbers: true,
-  symbols: true,
-  uppercase: true,
-  lowercase: true
-})
-```
-
-Encrypting a String
-```js
-const { string } = require('@rjweb/utils')
-
-const result = string.encrypt('Hello', 'secret', {
-  output: 'hex'
-})
-```
-
-Decrypting a String
-```js
-const { string } = require('@rjweb/utils')
-
-const result = string.decrypt('df4d0fe46e0210d4ef46368a6c3d56bb', 'secret', {
-  input: 'hex'
-})
-```
-
-Hashing a String
-```js
-const { string } = require('@rjweb/utils')
-
-const result = string.hash('Hello', {
-  salt: 'secret',
-  algorithm: 'sha256',
-  output: 'hex'
-})
-```
-
-Check if a Host is reachable
-```js
-const { network } = require('@rjweb/utils')
-
-// host, port, timeout ms
-const result = await network.test('127.0.0.1', 80, 5000)
-```
-
-Parsing Options
-```js
-const { object } = require('@rjweb/utils')
-
-const original = {
-  ssl: true,
-  maxRequests: 10000,
-  other: {
-    clock: true,
-    date: {
-      enabled: true,
-      timezone: 'UTC'
-    }
-  }
-}
-
-const userProvided = {
-  ssl: false,
-  other: {
-    date: {
-      timezone: 'CET'
-    }
-  }
-}
-
-const result = object.deepParse(original, userProvided)
-/**
- * {
- *   ssl: false,
- *   maxRequests: 10000,
- *   other: {
- *     clock: true,
- *     date: {
- *       enabled: true,
- *       timezone: 'CET'
- *     }
- *   }
- * }
-*/
-```
+All Utilities and example are available in the [typedocs](https://types.rjweb-utils.rjansen.de).
 
 ## Author
 

@@ -46,7 +46,7 @@ import { DeepRequired } from "."
 
 	const handleObject = (object: Record<string, any>, compare: Record<string, any>) => {
 		Object.keys(object).forEach((key) => {
-			if (!compare[key]) throw false
+			if (key in compare) throw false
 			if (typeof object[key] !== typeof compare[key]) throw false
 			if (typeof object[key] !== 'object' && object[key] !== compare[key]) throw false
 			if (typeof object[key] === 'object') handleObject(object[key], compare[key])
