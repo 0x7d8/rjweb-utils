@@ -1,3 +1,7 @@
+## 1.5.5
+
+- Fix unbuilt declarations
+
 ## 1.5.4
 
 - Add `array.equal`
