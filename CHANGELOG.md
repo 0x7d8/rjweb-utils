@@ -1,3 +1,7 @@
+## 1.5.4
+
+- Add `array.equal`
+
 ## 1.5.3
 
 - Add `time.fn`

@@ -99,3 +99,25 @@
 	if (input.length <= length) return input as never
 	else return input.slice(0, length).concat(end ?? '...') as never
 }
+
+/**
+ * Check if each element in an Array is equal to the first (uses `===` so no objects)
+ * @example
+ * ```
+ * import { array } from "@rjweb/utils"
+ * 
+ * array.equal([1, 2, 3, 4, 5]) // false
+ * array.equal([1, 1, 1, 1]) // true
+ * ```
+ * @since 1.5.4
+*/ export function equal(input: any[]): boolean {
+	if (input.length <= 1) return true
+
+	for (let i = 0; i < input.length; i++) {
+		if (i === 0) continue
+
+		if (input[i] !== input[0]) return false
+	}
+
+	return true
+}
