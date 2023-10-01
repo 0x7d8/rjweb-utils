@@ -7,6 +7,7 @@ export * as system from "./system"
 export * as queue from "./queue"
 export * as filesystem from "./filesystem"
 export { default as time } from "./time"
+export { default as size } from "./size"
 
 /** @ts-ignore */
 import { version } from "./pckg.json"

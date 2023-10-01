@@ -1,3 +1,7 @@
+## 1.6.0
+
+- Add `size`
+
 ## 1.5.5
 
 - Fix unbuilt declarations

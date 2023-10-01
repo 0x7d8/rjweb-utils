@@ -16,7 +16,7 @@ class Time<Amount extends number> {
 	 * Use the provided amount as milliseconds
 	 * @example
 	 * ```
-	 * size(10).ms() // 10
+	 * time(10).ms() // 10
 	 * ```
 	 * @since 1.5.0
 	*/ public ms(): Amount {
@@ -60,7 +60,7 @@ class Time<Amount extends number> {
 	 * Use the provided amount as days
 	 * @example
 	 * ```
-	 * size(10).d() // 8640000000
+	 * time(10).d() // 8640000000
 	 * ```
 	 * @since 1.5.0
 	*/ public d(): Multiply<Multiply<Multiply<Multiply<Amount, 1000>, 60>, 60>, 24> {
@@ -71,7 +71,7 @@ class Time<Amount extends number> {
 	 * Use the provided amount as weeks
 	 * @example
 	 * ```
-	 * size(10).w() // 604800000000
+	 * time(10).w() // 604800000000
 	 * ```
 	 * @since 1.5.0
 	*/ public w(): Multiply<Multiply<Multiply<Multiply<Multiply<Amount, 1000>, 60>, 60>, 24>, 7> {

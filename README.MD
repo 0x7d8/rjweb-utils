@@ -1,7 +1,7 @@
 <h1 align="center">Welcome to @rjweb/utils 👋</h1>
 <center>
 
-  [<img src="https://img.rjansen.de/rjweb/types.svg" height="75px" style="margin-top:0px;margin-left:-15px;">](https://types.rjweb-utils.rjansen.de)
+  [<img src="https://img.rjansen.de/rjweb/types.svg" height="75px" style="margin-top:0px;margin-left:-15px;">](https://utils.rjweb.dev)
 
   Easy and Lightweight Utilities
 </center>
@@ -23,7 +23,7 @@ pnpm add @rjweb/utils
 
 ## Example Usage
 
-All Utilities and example are available in the [typedocs](https://types.rjweb-utils.rjansen.de).
+All Utilities and example are available in the [typedocs](https://utils.rjweb.dev).
 
 ## Author
 
