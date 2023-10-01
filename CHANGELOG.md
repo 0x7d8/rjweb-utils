@@ -1,3 +1,7 @@
+## 1.6.1
+
+- Dont Require `factor` argument in `size` function
+
 ## 1.6.0
 
 - Add `size`
