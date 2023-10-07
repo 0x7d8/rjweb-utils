@@ -1,5 +1,4 @@
 import { Multiply } from "ts-arithmetic"
-import { isPromise } from "util/types"
 
 class Time<Amount extends number> {
 	private amount: Amount
@@ -123,7 +122,7 @@ class Time<Amount extends number> {
 		const startTime = performance.now()
 
 		const res = fn()
-		if (isPromise(res)) return new Promise(async(resolve) => {
+		if (res?.toString() === '[object Promise]') return new Promise(async(resolve) => {
 			const asyncRes = await res
 			return resolve([ performance.now() - startTime, asyncRes ])
 		}) as any

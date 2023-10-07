@@ -1,3 +1,7 @@
+## 1.6.2
+
+- Dont use `util/types` for browser compatibility
+
 ## 1.6.1
 
 - Dont Require `factor` argument in `size` function
