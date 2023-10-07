@@ -1,3 +1,8 @@
+## 1.6.4
+
+- Fix IPv6 Validation
+- Export `IPAddress` type
+
 ## 1.6.3
 
 - Improve `network.isIP`

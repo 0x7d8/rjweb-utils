@@ -17,7 +17,7 @@ type IPAddress6 = {
 	}
 }
 
-type IPAddress = IPAddress4 | IPAddress6
+export type IPAddress = IPAddress4 | IPAddress6
 
 /**
  * Check the Connection (Time) to a Host + Port
@@ -97,7 +97,7 @@ type IPAddress = IPAddress4 | IPAddress6
 		let doubleSegments = 0
 		for (const segment of segments) {
 			if (doubleSegments > 1) return false
-			if (!segment) {
+			if (segment === '') {
 				doubleSegments++
 				continue
 			}
