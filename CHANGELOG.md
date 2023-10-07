@@ -1,3 +1,8 @@
+## 1.6.3
+
+- Improve `network.isIP`
+- Add `network.parseIP`
+
 ## 1.6.2
 
 - Dont use `util/types` for browser compatibility
