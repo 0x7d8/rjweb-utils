@@ -1,3 +1,7 @@
+## 1.7.1
+
+- Fix `network.Subnet.size` return type being `BigInt` instead of `bigint`
+
 ## 1.7.0
 
 - Remove `network.parseIP`

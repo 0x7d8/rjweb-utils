@@ -14,8 +14,6 @@ import { as } from "."
  * subnet.first() // <IPAddress>
  * subnet.last() // <IPAddress>
  * 
- * subnet.includes(new network.IPAddress('1.1.1.1')) // false
- * 
  * for (const ip of subnet) {
  *   console.log(ip.long())
  * }
@@ -37,8 +35,6 @@ import { as } from "."
 	 * subnet.size() // 1
 	 * subnet.first() // <IPAddress>
 	 * subnet.last() // <IPAddress>
-	 * 
-	 * subnet.includes(new network.IPAddress('1.1.1.1')) // false
 	 * 
 	 * for (const ip of subnet) {
 	 *   console.log(ip.long())
@@ -163,7 +159,7 @@ import { as } from "."
 	/**
 	 * Get the Size of the Subnet (possible ips, for hosts subtract 2)
 	 * @since 1.7.0
-	*/ public size(): BigInt {
+	*/ public size(): bigint {
 		if (this.type === 4) {
 			return BigInt(2) ** (BigInt(32) - BigInt(this.mask))
 		} else {
