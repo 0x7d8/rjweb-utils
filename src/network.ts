@@ -1,23 +1,412 @@
 import { createConnection } from "net"
 import { as } from "."
 
-export type IPAddress4 = {
-	type: 4
-	full(): string
-	data: Uint8Array & {
-		length: 4
+/**
+ * A Respresentation of a Subnet
+ * @example
+ * ```
+ * import { network } from "@rjweb/utils"
+ * 
+ * const subnet = new network.Subnet('127.1/32')
+ * subnet.type // 4
+ * 
+ * subnet.size // 1
+ * subnet.first() // <IPAddress>
+ * subnet.last() // <IPAddress>
+ * 
+ * subnet.includes(new network.IPAddress('1.1.1.1')) // false
+ * 
+ * for (const ip of subnet) {
+ *   console.log(ip.long())
+ * }
+ * ```
+ * @since 1.7.0
+*/ export class Subnet<Type extends 4 | 6 = 4 | 6> {
+	private iFirst: IPAddress
+	private type: 4 | 6
+
+	/**
+	 * Create a new Subnet
+	 * @example
+	 * ```
+	 * import { network } from "@rjweb/utils"
+	 * 
+	 * const subnet = new network.Subnet('127.1/32')
+	 * subnet.type // 4
+	 * 
+	 * subnet.size() // 1
+	 * subnet.first() // <IPAddress>
+	 * subnet.last() // <IPAddress>
+	 * 
+	 * subnet.includes(new network.IPAddress('1.1.1.1')) // false
+	 * 
+	 * for (const ip of subnet) {
+	 *   console.log(ip.long())
+	 * }
+	 * ```
+	 * @since 1.7.0
+	*/ constructor(subnet: string | Subnet, type?: Type) {
+		if (subnet instanceof Subnet) {
+			if (type && type !== subnet.type) throw new Error('Not Expected Type')
+
+			this.iFirst = subnet.iFirst
+			this.mask = subnet.mask
+			this.type = subnet.type
+
+			return
+		}
+
+		const is = isSubnet(subnet)
+		if (!is) throw new Error(`Invalid Subnet \`${subnet}\``)
+
+		switch (is) {
+			case "v4": {
+				const [ content, mask ] = subnet.split('/')
+
+				if (type && type !== 4) throw new Error('Not Expected Type')
+
+				this.type = 4
+				this.mask = parseInt(mask)
+				this.iFirst = new IPAddress(content)
+
+				break
+			}
+
+			case "v6": {
+				const [ content, mask ] = subnet.split('/')
+
+				if (type && type !== 6) throw new Error('Not Expected Type')
+
+				this.type = 6
+				this.mask = parseInt(mask)
+				this.iFirst = new IPAddress(content)
+
+				break
+			}
+		}
+	}
+
+	/**
+	 * The Mask of this Subnet
+	 * @since 1.7.0
+	*/ public mask: number
+
+
+	/**
+	 * Whether this is an IPv4 Subnet
+	 * @since 1.7.0
+	*/ public isIPv4(): this is Subnet<4> {
+		return this.type === 4
+	}
+
+	/**
+	 * Whether this is an IPv6 Subnet
+	 * @since 1.7.0
+	*/ public isIPv6(): this is Subnet<6> {
+		return this.type === 6
+	}
+
+
+	/**
+	 * Get the first IP of the Subnet
+	 * @since 1.7.0
+	*/ public first(): IPAddress<Type> {
+		return as<IPAddress<Type>>(this.iFirst)
+	}
+
+	/**
+	 * Get the last IP of the Subnet
+	 * @since 1.7.0
+	*/ public last(): IPAddress<Type> {
+		if (this.type === 4) {
+			const mask = new Uint8Array(4)
+			let subnet = this.mask
+
+			for (let i = 0; i < 4; i++) {
+				if (subnet > 0) {
+					let bits = subnet > 8 ? 8 : subnet
+					mask[i] = ((1 << bits) - 1) << (8 - bits)
+					subnet -= bits
+				} else {
+					mask[i] = 0
+				}
+			}
+
+			const net = new Uint8Array(4)
+			for (let i = 0; i < 4; i++) {
+				net[i] = this.iFirst.rawData[i] & mask[i]
+  		}
+
+			const ip = new Uint8Array(4)
+			for (let i = 0; i < 4; i++) {
+				ip[i] = net[i] | (~mask[i] & 0xFF)
+			}
+
+			return new IPAddress(ip)
+		} else {
+			const mask = ''.padStart(this.mask, '1').padEnd(128, '0');
+
+			const maskArray = new Uint16Array(8)
+			for (let i = 0; i < 8; i++) {
+				maskArray[i] = parseInt(mask.substring(i * 16, (i + 1) * 16), 2)
+			}
+	
+			const ip = new Uint16Array(8)
+			for (let i = 0; i < 8; i++) {
+				ip[i] = this.iFirst.rawData[i] | (~maskArray[i] & 0xFFFF)
+			}
+
+			return new IPAddress(ip)
+		}
+	}
+
+	/**
+	 * Get the Size of the Subnet (possible ips, for hosts subtract 2)
+	 * @since 1.7.0
+	*/ public size(): BigInt {
+		if (this.type === 4) {
+			return BigInt(2) ** (BigInt(32) - BigInt(this.mask))
+		} else {
+			return BigInt(2) ** (BigInt(128) - BigInt(this.mask))
+		}
+	}
+
+	public [Symbol.iterator](): Iterator<IPAddress<Type>> {
+		const first = this.iFirst, size = this.size()
+		let i = BigInt(0)
+
+		if (this.type === 4) {
+			return {
+				next() {
+					if (i === size) return { value: size, done: true }
+	
+					const ip = new Uint8Array(first.rawData)
+					let overflow = i
+	
+					for (let j = ip.length - 1; j >= 0 && overflow > 0; j--) {
+						let sum = ip[j] + Number(overflow)
+						ip[j] = sum % 256
+						overflow = BigInt(Math.floor(sum / 256))
+					}
+	
+					++i
+					return {
+						value: new IPAddress(ip)
+					}
+				}
+			}
+		} else {
+			return {
+				next() {
+					if (i === size) return { value: size, done: true }
+	
+					const ip = new Uint16Array(first.rawData)
+					let overflow = i
+	
+					for (let j = ip.length - 1; j >= 0 && overflow > 0; j--) {
+						let sum = ip[j] + Number(overflow)
+						ip[j] = sum % 65536
+						overflow = BigInt(Math.floor(sum / 65536))
+					}
+
+					++i
+					return {
+						value: new IPAddress(ip)
+					}
+				}
+			}
+		}
 	}
 }
 
-export type IPAddress6 = {
-	type: 6
-	full(): string
-	data: Uint16Array & {
-		length: 8
+/**
+ * A Respresentation of an IP Address
+ * @example
+ * ```
+ * import { network } from "@rjweb/utils"
+ * 
+ * const ip = new network.IPAddress('127.1')
+ * ip.type // 4
+ * ip.full() // 127.0.0.1
+ * ip.short() // 127.1
+ * ```
+ * @since 1.7.0
+*/ export class IPAddress<Type extends 4 | 6 = 4 | 6> {
+	private type: Type
+
+	/**
+	 * Create a new IP Address
+	 * @example
+	 * ```
+	 * import { network } from "@rjweb/utils"
+	 * 
+	 * const ip = new network.IPAddress('127.1')
+	 * ip.type // 4
+	 * ip.full() // 127.0.0.1
+	 * ip.short() // 127.1
+	 * ```
+	 * @since 1.7.0
+	*/ constructor(ip: string | IPAddress | Uint8Array | Uint16Array, type?: Type) {
+		if (ip instanceof IPAddress) {
+			if (type && type !== ip.type) throw new Error('Not Expected Type')
+
+			this.type = as<Type>(ip.type)
+			this.rawData = as<any>(ip.rawData)
+
+			return
+		} else if (ip instanceof Uint8Array && !(ip instanceof Uint16Array)) {
+			if (type && type !== 4) throw new Error('Not Expected Type')
+			if (ip.length !== 4) throw new Error(`Invalid IP \`${ip.join('.')} (length must be 4 with uint8array)\``)
+
+			this.type = as<Type>(4)
+			this.rawData = as<any>(ip)
+
+			return
+		} else if (ip instanceof Uint16Array) {
+			if (type && type !== 6) throw new Error('Not Expected Type')
+			if (ip.length !== 8) throw new Error(`Invalid IP \`${ip.join('.')} (length must be 8 with uint16array)\``)
+
+			this.type = as<Type>(6)
+			this.rawData = as<any>(ip)
+
+			return
+		}
+
+		const is = isIP(ip)
+		if (!is) throw new Error(`Invalid IP \`${ip}\``)
+
+		switch (is) {
+			case "v4": {
+				const segments = ip.split('.')
+
+				if (type && type !== 4) throw new Error('Not Expected Type')
+
+				this.type = as<Type>(4)
+				this.rawData = as<any>(new Uint8Array(4))
+
+				const ints = segments.map((segment) => parseInt(segment))
+				switch (ints.length) {
+					case 4: {
+						this.rawData.set(ints)
+	
+						break
+					}
+
+					case 3: {
+						this.rawData.set(ints)
+	
+						break
+					}
+
+					case 2: {
+						this.rawData[0] = ints[0]
+						this.rawData[3] = ints[1]
+	
+						break
+					}
+
+					case 1: {
+						this.rawData.set(ints)
+
+						break
+					}
+
+					default: {
+						throw new Error('Int Length Invalid')
+					}
+				}
+
+				break
+			}
+
+			case "v6": {
+				const segments = ip.split(':')
+				if (segments[0] === '') segments.splice(0, 1)
+
+				if (type && type !== 6) throw new Error('Not Expected Type')
+
+				this.type = as<Type>(6)
+				this.rawData = as<any>(new Uint16Array(8))
+
+				const ints = segments.map((segment) => !segment ? false : parseInt(segment, 16))
+
+				let doubleIx: number | null = null
+				for (let i = 0; i < ints.length; i++) {
+					if (ints[i] === false) {
+						doubleIx = i
+						break
+					}
+				}
+
+				if (doubleIx !== null) {
+					const start = as<number[]>(ints.slice(0, doubleIx)),
+						end = as<number[]>(ints.slice(doubleIx + 1))
+
+					this.rawData.set(start.concat(Array.from({ length: 8 - (start.length + end.length) }, () => 0)).concat(end))
+				} else {
+					this.rawData.set(ints as number[])
+				}
+
+				break
+			}
+		}
+	}
+
+	/**
+	 * The Raw Byte Data of the IP
+	 * @since 1.7.0
+	*/ public readonly rawData: Type extends 4 ? Type extends 6 ? Uint8Array | Uint16Array : Uint8Array : Uint16Array
+
+
+	/**
+	 * Whether this is an IPv4 Address
+	 * @since 1.7.0
+	*/ public isIPv4(): this is IPAddress<4> {
+		return this.type === 4
+	}
+
+	/**
+	 * Whether this is an IPv6 Address
+	 * @since 1.7.0
+	*/ public isIPv6(): this is IPAddress<6> {
+		return this.type === 6
+	}
+
+
+	/**
+	 * Get the Long representation of this IP
+	 * @since 1.7.0
+	*/ public long(): string {
+		if (this.type === 4) {
+			return this.rawData.join('.')
+		} else {
+			return [ ...this.rawData ].map((seg) => seg.toString(16).padStart(4, '0')).join(':')
+		}
+	}
+
+	/**
+	 * Get the Short representation of this IP
+	 * @since 1.7.0
+	*/ public short(): string {
+		if (this.type === 4) {
+			if (!this.rawData[1] && !this.rawData[2] && !this.rawData[3]) return this.rawData[0].toString()
+			else if (!this.rawData[1] && !this.rawData[2]) return `${this.rawData[0]}.${this.rawData[3]}`
+			else if (!this.rawData[2] && !this.rawData[3]) return `${this.rawData[0]}.${this.rawData[1]}`
+			else if (!this.rawData[3]) return `${this.rawData[0]}.${this.rawData[1]}.${this.rawData[2]}`
+
+			return this.rawData.join('.')
+		} else {
+			let ip = [ ...this.rawData ]
+        .map((seg) => seg.toString(16))
+        .join(':')
+
+			ip = ip.replace(/(^|:)0+([0-9A-Fa-f]+)/g, '$1$2')
+			ip = ip.replace(/(^|:)(0(:|$)){2,}/, '::')
+
+			return ip
+		}
 	}
 }
-
-export type IPAddress = IPAddress4 | IPAddress6
 
 /**
  * Check the Connection (Time) to a Host + Port
@@ -73,6 +462,7 @@ export type IPAddress = IPAddress4 | IPAddress6
  * network.isIP('::1', 'v4') // false
  * network.isIP('::1', 'v6') // 'v6'
  * network.isIP('127.0.0.1', 'v6 | v4') // 'v4'
+ * network.isIP('1.1') // 'v4'
  * ```
  * @returns IP Type or false if failed
  * @since 1.1.0
@@ -99,7 +489,7 @@ export type IPAddress = IPAddress4 | IPAddress6
 		if (doubleSegments === 0 && segments.length !== 8) return false
 
 		return 'v6'
-	} else {
+	} else if (type !== 'v6') {
 		const segments = ip.split('.')
 		if (segments.length > 4) return false
 
@@ -122,112 +512,75 @@ export type IPAddress = IPAddress4 | IPAddress6
 }
 
 /**
- * Parse an IP into a Typed Array and its full string
- * @warning Does NOT Support CIDR yet
+ * Check if a Subnet is valid
  * @example
  * ```
  * import { network } from "@rjweb/utils"
- *
- * network.parseIP('::1') // { type: 6, full: [Function], data: [ 0, 0, 0, 0, 0, 0, 0, 1 ] }
- * network.parseIP('127.1') // { type: 4, full: [Function], data: [ 127, 0, 0, 1 ] }
+ * 
+ * network.isSubnet('127.0.0.1', 'v4') // false
+ * network.isSubnet('127.0.0.1', 'v6') // false
+ * network.isSubnet('::1/128', 'v6') // 'v6'
+ * network.isSubnet('127.0.0.1/32', 'v6 | v4') // 'v4'
+ * network.isSubnet('1.1') // false
+ * network.isSubnet('1.1/32') // 'v4'
  * ```
- * @since 1.6.3
-*/ export function parseIP(ip: string): IPAddress {
-	const is = isIP(ip)
-	if (!is) throw new Error(`Invalid IP ${ip}`)
+ * @returns Subnet IP Type or false if failed
+ * @since 1.7.0
+*/ export function isSubnet(ip: string, type: 'v4' | 'v6' | 'v6 | v4' = 'v6 | v4'): 'v4' | 'v6' | false {
+	if (type !== 'v4' && ip.includes(':')) {
+		const [ content, mask ] = ip.split('/')
+		if (mask) {
+			const int = parseInt(mask)
+			if (isNaN(int)) return false
+			if (int < 0 && int > 128) return false
+		} else return false
 
-	switch (is) {
-		case "v4": {
-			const segments = ip.split('.')
-			
-			let data: IPAddress4
+		const segments = content.split(':')
+		if (segments.length > 8 || segments.length <= 2) return false
 
-			const ints = segments.map((segment) => parseInt(segment))
-			switch (ints.length) {
-				case 4: {
-					data = {
-						type: 4,
-						full() {
-							return ints.join('.')
-						}, data: new Uint8Array(ints) as any
-					}
+		if (segments[0] === '') segments.splice(0, 1)
 
-					break
-				}
-
-				case 3: {
-					data = {
-						type: 4,
-						full() {
-							return ints.join('.').concat('.0')
-						}, data: new Uint8Array([ ...ints, 0 ]) as any
-					}
-
-					break
-				}
-
-				case 2: {
-					data = {
-						type: 4,
-						full() {
-							return ints[0].toString().concat('.0.0.').concat(ints[1].toString())
-						}, data: new Uint8Array([ ints[0], 0, 0, ints[1] ]) as any
-					}
-
-					break
-				}
-
-				case 1: {
-					data = {
-						type: 4,
-						full() {
-							return ints[0].toString().concat('.0.0.0')
-						}, data: new Uint8Array([ ints[0], 0, 0, 0 ]) as any
-					}
-
-					break
-				}
-
-				default: {
-					throw new Error('Int Length Invalid')
-				}
+		let doubleSegments = 0
+		for (const segment of segments) {
+			if (doubleSegments > 1) return false
+			if (segment === '') {
+				doubleSegments++
+				continue
 			}
 
-			return data
+			const int = parseInt(segment, 16)
+			if (isNaN(int)) return false
+			if (int < 0 || int > 65535) return false
 		}
 
-		case "v6": {
-			const segments = ip.split(':')
-			if (segments[0] === '') segments.splice(0, 1)
+		if (doubleSegments === 0 && segments.length !== 8) return false
 
-			const data: IPAddress6 = {
-				type: 6,
-				full() {
-					return [ ...this.data ].map((segment) => segment.toString(16).padStart(4, '0')).join(':')
-				}, data: new Uint16Array(8) as any
+		return 'v6'
+	} else if (type !== 'v6') {
+		const [ content, mask ] = ip.split('/')
+		if (mask) {
+			const int = parseInt(mask)
+			if (isNaN(int)) return false
+			if (int < 0 && int > 32) return false
+		} else return false
+
+		const segments = content.split('.')
+		if (segments.length > 4) return false
+
+		if (segments.length) {
+			for (const segment of segments) {
+				const int = parseInt(segment)
+				if (isNaN(int)) return false
+				if (int < 0 || int > 255) return false
 			}
-
-			const ints = segments.map((segment) => !segment ? false : parseInt(segment, 16))
-
-			let doubleIx: number | null = null
-			for (let i = 0; i < ints.length; i++) {
-				if (ints[i] === false) {
-					doubleIx = i
-					break
-				}
-			}
-
-			if (doubleIx !== null) {
-				const start = as<number[]>(ints.slice(0, doubleIx)),
-					end = as<number[]>(ints.slice(doubleIx + 1))
-
-				console.log(start, end)
-				data.data.set(start.concat(Array.from({ length: 8 - (start.length + end.length) }, () => 0)).concat(end))
-			} else {
-				data.data.set(ints as number[])
-			}
-
-			return data
+		} else {
+			const int = parseInt(ip)
+			if (isNaN(int)) return false
+			if (int < 0 || int > 255) return false
 		}
+
+		return 'v4'
 	}
+
+	return false
 }

@@ -1,3 +1,10 @@
+## 1.7.0
+
+- Remove `network.parseIP`
+- Add `network.IPAddress`
+- Add `network.Subnet`
+- Add `network.isSubnet`
+
 ## 1.6.5
 
 - Make `1` a valid ipv4 (1.0.0.0)
