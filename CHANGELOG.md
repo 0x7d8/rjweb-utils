@@ -1,3 +1,7 @@
+## 1.6.5
+
+- Make `1` a valid ipv4 (1.0.0.0)
+
 ## 1.6.4
 
 - Fix IPv6 Validation

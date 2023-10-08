@@ -1,7 +1,7 @@
 import { createConnection } from "net"
 import { as } from "."
 
-type IPAddress4 = {
+export type IPAddress4 = {
 	type: 4
 	full(): string
 	data: Uint8Array & {
@@ -9,7 +9,7 @@ type IPAddress4 = {
 	}
 }
 
-type IPAddress6 = {
+export type IPAddress6 = {
 	type: 6
 	full(): string
 	data: Uint16Array & {
@@ -77,18 +77,7 @@ export type IPAddress = IPAddress4 | IPAddress6
  * @returns IP Type or false if failed
  * @since 1.1.0
 */ export function isIP(ip: string, type: 'v4' | 'v6' | 'v6 | v4' = 'v6 | v4'): 'v4' | 'v6' | false {
-	if (type !== 'v6' && ip.includes('.')) {
-		const segments = ip.split('.')
-		if (segments.length > 4) return false
-
-		for (const segment of segments) {
-			const int = parseInt(segment)
-			if (isNaN(int)) return false
-			if (int < 0 || int > 255) return false
-		}
-
-		return 'v4'
-	} else if (type !== 'v4' && ip.includes(':')) {
+	if (type !== 'v4' && ip.includes(':')) {
 		const segments = ip.split(':')
 		if (segments.length > 8 || segments.length <= 2) return false
 
@@ -110,6 +99,23 @@ export type IPAddress = IPAddress4 | IPAddress6
 		if (doubleSegments === 0 && segments.length !== 8) return false
 
 		return 'v6'
+	} else {
+		const segments = ip.split('.')
+		if (segments.length > 4) return false
+
+		if (segments.length) {
+			for (const segment of segments) {
+				const int = parseInt(segment)
+				if (isNaN(int)) return false
+				if (int < 0 || int > 255) return false
+			}
+		} else {
+			const int = parseInt(ip)
+			if (isNaN(int)) return false
+			if (int < 0 || int > 255) return false
+		}
+
+		return 'v4'
 	}
 
 	return false
