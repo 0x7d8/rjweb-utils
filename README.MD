@@ -6,7 +6,7 @@
   Easy and Lightweight Utilities
 </center>
 
-### 🏠 [Homepage](https://github.com/rotvproHD/rjweb-utils#readme)
+### 🏠 [Homepage](https://github.com/0x7d8/rjweb-utils#readme)
 
 ## Install
 

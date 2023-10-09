@@ -6,6 +6,7 @@ export * as network from "./network"
 export * as system from "./system"
 export * as queue from "./queue"
 export * as filesystem from "./filesystem"
+export * as dns from "./dns"
 export { default as time } from "./time"
 export { default as size } from "./size"
 

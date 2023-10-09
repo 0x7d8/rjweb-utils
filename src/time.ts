@@ -122,7 +122,7 @@ class Time<Amount extends number> {
 		const startTime = performance.now()
 
 		const res = fn()
-		if (res?.toString() === '[object Promise]') return new Promise(async(resolve) => {
+		if (res instanceof Promise) return new Promise(async(resolve) => {
 			const asyncRes = await res
 			return resolve([ performance.now() - startTime, asyncRes ])
 		}) as any

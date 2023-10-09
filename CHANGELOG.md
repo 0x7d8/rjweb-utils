@@ -1,3 +1,8 @@
+## 1.8.0
+
+- Add `dns`
+- Use `instanceof` to check for promise
+
 ## 1.7.1
 
 - Fix `network.Subnet.size` return type being `BigInt` instead of `bigint`

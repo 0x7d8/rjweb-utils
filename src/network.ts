@@ -1,6 +1,8 @@
 import { createConnection } from "net"
 import { as } from "."
 
+const inspectSymbol = Symbol.for('nodejs.util.inspect.custom')
+
 /**
  * A Respresentation of a Subnet
  * @example
@@ -10,7 +12,7 @@ import { as } from "."
  * const subnet = new network.Subnet('127.1/32')
  * subnet.type // 4
  * 
- * subnet.size // 1
+ * subnet.size() // 1n
  * subnet.first() // <IPAddress>
  * subnet.last() // <IPAddress>
  * 
@@ -32,7 +34,7 @@ import { as } from "."
 	 * const subnet = new network.Subnet('127.1/32')
 	 * subnet.type // 4
 	 * 
-	 * subnet.size() // 1
+	 * subnet.size() // 1n
 	 * subnet.first() // <IPAddress>
 	 * subnet.last() // <IPAddress>
 	 * 
@@ -213,6 +215,10 @@ import { as } from "."
 			}
 		}
 	}
+
+	protected [inspectSymbol](): string {
+		return `<Subnet v${this.type} /${this.mask} ${this.first().long()}->${this.last().long()}>`
+	}
 }
 
 /**
@@ -223,7 +229,7 @@ import { as } from "."
  * 
  * const ip = new network.IPAddress('127.1')
  * ip.type // 4
- * ip.full() // 127.0.0.1
+ * ip.long() // 127.0.0.1
  * ip.short() // 127.1
  * ```
  * @since 1.7.0
@@ -401,6 +407,10 @@ import { as } from "."
 
 			return ip
 		}
+	}
+
+	protected [inspectSymbol](): string {
+		return `<IPAddress v${this.type} ${this.long()}>`
 	}
 }
 
