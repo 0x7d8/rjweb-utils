@@ -1,3 +1,7 @@
+## 1.8.1
+
+- Improve vite compatibility
+
 ## 1.8.0
 
 - Add `dns`

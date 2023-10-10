@@ -1,4 +1,4 @@
-import { createConnection } from "net"
+import * as net from "net"
 import { as } from "."
 
 const inspectSymbol = Symbol.for('nodejs.util.inspect.custom')
@@ -433,7 +433,7 @@ const inspectSymbol = Symbol.for('nodejs.util.inspect.custom')
 			resolve(false)
 		}, timeout)
 
-		const connection = createConnection({
+		const connection = net.createConnection({
 			host, port,
 			keepAlive: false
 		})

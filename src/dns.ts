@@ -1,5 +1,5 @@
 import { IPAddress, isIP } from "./network"
-import * as dns from "dns/promises"
+import * as dns from "dns"
 
 /**
  * Resolve a Host to an IP
@@ -16,13 +16,13 @@ import * as dns from "dns/promises"
 	if (isIP(host)) return new IPAddress(host)
 
 	try {
-		const v4 = await dns.resolve4(host)
+		const v4 = await dns.promises.resolve4(host)
 		if (!v4.length) throw 1
 
 		return new IPAddress(v4[0])
 	} catch {
 		try {
-			const v6 = await dns.resolve6(host)
+			const v6 = await dns.promises.resolve6(host)
 			if (!v6.length) throw 1
 
 			return new IPAddress(v6[0])
