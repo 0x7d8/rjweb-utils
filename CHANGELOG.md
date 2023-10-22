@@ -1,3 +1,7 @@
+## 1.8.2
+
+- Remove bcrypt from dependencies
+
 ## 1.8.1
 
 - Improve vite compatibility

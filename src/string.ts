@@ -231,7 +231,7 @@ const _string = (options: Record<string, any>) => {
  * ```
  * import { string } from "@rjweb/utils"
  * 
- * string.generateSegments([ 2, 5, 3 ], '-', { length: 5, numbers: true, ... }) // dK-4Rflk-jGb
+ * string.generateSegments([ 2, 5, 3 ], '-', { numbers: true, ... }) // dK-4Rflk-jGb
  * ```
  * @since 1.0.0
 */ export function generateSegments(segments: number[], seperator: string = '-', options?: {
