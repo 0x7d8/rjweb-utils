@@ -1,3 +1,8 @@
+## 1.8.3
+
+- Add `string.replaceAsync`
+- Add `string.VariableParser`
+
 ## 1.8.2
 
 - Remove bcrypt from dependencies

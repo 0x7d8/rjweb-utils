@@ -283,3 +283,212 @@ const _string = (options: Record<string, any>) => {
 	if (trimmed.length < length) return trimmed
 	else return (trimmed.slice(0, length) + end).trimEnd()
 }
+
+/**
+ * Replace Something in a String with async callback
+ * @example
+ * ```
+ * import { string } from "@rjweb/utils"
+ * import db from "somewhere"
+ * 
+ * string.replaceAsync('very long string or something', /./g, async(match) => {
+ *   const result = await db.get(match)
+ * 
+ *   return result
+ * })
+ * ```
+ * @since 1.8.3
+*/ export async function replaceAsync(input: string, searchValue: string | RegExp, replacer: (match: string) => string | Promise<string>): Promise<string> {
+  try {
+    if (typeof replacer === 'function') {
+      const values: (string | Promise<string>)[] = []
+
+      String.prototype.replace.call(input, searchValue as any, (match) => {
+        values.push(replacer(match))
+
+        return ''
+      })
+
+      const resolvedValues = await Promise.all(values)
+			return String.prototype.replace.call(input, searchValue as any, () => {
+				return resolvedValues.shift()!
+			})
+    } else {
+      return Promise.resolve(String.prototype.replace.call(input, searchValue as any, replacer))
+    }
+  } catch (error) {
+    return Promise.reject(error)
+  }
+}
+
+class CompiledVariableParser<Data> {
+	constructor(
+		private variables: Record<string, { args: Record<string, boolean>, handler: (data: Data, args: Record<string, string | undefined>, invalid: (reason: string) => '') => string | Promise<string> }>
+	) {}
+
+	/**
+	 * Validate a String for this parser
+	 * @warning THIS WILL RUN ASYNC HANDLERS TOO
+	 * @since 1.8.3
+	*/ public async validate(input: string, data: Data): Promise<{ valid: true } | { valid: false, error: string }> {
+		try {
+			await replaceAsync(input, /{{(\w*)+(\(.*?\))?}}/g, async(match) => {
+				const slicedMatch = match.slice(2, -2)
+	
+				const bracketIndex = slicedMatch.indexOf('(')
+
+				const name = slicedMatch.slice(0, bracketIndex < 0 ? slicedMatch.length : bracketIndex),
+					variable = this.variables[name]
+
+				if (!variable) throw `Unknown Variable \`${name}\``
+
+				const args = bracketIndex < 0 ? [] : slicedMatch.slice(bracketIndex + 1, slicedMatch.length - 1).split(/(?<!\\),/),
+					parsedArgs: Record<string, string | undefined> = {}
+
+				let index = -1
+				for (const key in variable.args) {
+					++index
+
+					if (variable.args[key] && !args[index]) throw `Required Argument \`${key}\` not supplied to \`${name}\``
+					parsedArgs[key] = args[index]?.trim()?.replaceAll('\\,', ',')
+				}
+
+				let endEarly: string | null = null
+				const result = await Promise.resolve(variable.handler(data, parsedArgs, (reason) => {
+					endEarly = reason
+					return '' as const
+				}))
+
+				if (endEarly) throw endEarly
+				else return result
+			})
+
+			return { valid: true }
+		} catch (err: any) {
+			return { valid: false, error: String(err) }
+		}
+	}
+
+	/**
+	 * Parse a String using this parser
+	 * @since 1.8.3
+	*/ public parse(input: string, data: Data): Promise<string> {
+		return replaceAsync(input, /{{(\w*)+(\(.*?\))?}}/g, async(match) => {
+			const slicedMatch = match.slice(2, -2)
+
+			const bracketIndex = slicedMatch.indexOf('(')
+
+			try {
+				const variable = this.variables[slicedMatch.slice(0, bracketIndex < 0 ? slicedMatch.length : bracketIndex)]
+				if (!variable) return match
+
+				const args = bracketIndex < 0 ? [] : slicedMatch.slice(bracketIndex + 1, slicedMatch.length - 1).split(/(?<!\\),/),
+					parsedArgs: Record<string, string | undefined> = {}
+
+				let index = -1
+				for (const key in variable.args) {
+					++index
+
+					if (variable.args[key] && !args[index]) return match
+					parsedArgs[key] = args[index]?.trim()?.replaceAll('\\,', ',')
+				}
+
+				let endEarly = false
+				const result = await Promise.resolve(variable.handler(data, parsedArgs, () => {
+					endEarly = true
+					return '' as const
+				}))
+
+				if (endEarly) return match
+				else return result
+			} catch {
+				return match
+			}
+		})
+	}
+}
+
+class VariableParserArgBuilder<Args extends Record<string, boolean> = {}> {
+	protected arguments: Args = {} as any
+
+	/**
+	 * Add a Required Argument
+	 * @since 1.8.3
+	*/ public required<Name extends string>(name: Name): VariableParserArgBuilder<Args & Record<Name, true>> {
+		this.arguments[name] = true as any
+
+		return this as any
+	}
+
+	/**
+	 * Add an Optional Argument
+	 * @since 1.8.3
+	*/ public optional<Name extends string>(name: Name): VariableParserArgBuilder<Args & Record<Name, false>> {
+		this.arguments[name] = false as any
+
+		return this as any
+	}
+}
+
+/**
+ * Parse Variables in a String
+ * ```
+ * import { string, number } from "@rjweb/utils"
+ * 
+ * type Data = {
+ *   something: number
+ * }
+ * 
+ * const parser = new string.VariableParser<Data>()
+ *   .variable(
+ *     'round',
+ *     (args) => args
+ *       .required('number')
+ *       .optional('decimals'),
+ *     (data, args, invalid) => {
+ *       const num = parseFloat(args.number)
+ *       if (isNaN(num)) return invalid('Invalid Number')
+ * 
+ *       const decimals = args.decimals ? parseInt(args.decimals) : 2
+ *       if (isNaN(decimals) || decimals > 6) return invalid('Invalid Decimal Amount')
+ * 
+ *       return number.round(num * data.something, decimals).toString()
+ *     }
+ *   )
+ *   .variable(
+ *     'echo',
+ *     (args) => args
+ *       .required('text'),
+ *     (data, args) => {
+ *       retrun args.text
+ *     }
+ *   )
+ *   .compile()
+ * 
+ * await parser.validate('Hi', { something: 1 }) // { valid: true }
+ * await parser.validate('Hi {{round}}', { something: 1 }) // { valid: false, error: ['Missing Required Arguments to `round`'] }
+ * await parser.parse('I have {{round(10.32323463246, 4)}}{{echo(€\\, Sir.)}}', { something: 1 }) // 'I have 10.32€, Sir.'
+ * ```
+ * @since 1.8.3
+*/ export class VariableParser<Data = undefined> {
+	private variables: Record<string, { args: Record<string, boolean>, handler: (data: Data, args: Record<string, string | undefined>, invalid: (reason: string) => '') => string | Promise<string> }> = {}
+
+	/**
+	 * Add a new Variable to the Parser
+	 * @since 1.8.3
+	*/ public variable<Args extends (arg: VariableParserArgBuilder) => VariableParserArgBuilder>(
+		name: string, args: Args, handler: (data: Data, args: {
+			[x in (ReturnType<Args> extends VariableParserArgBuilder<infer D> ? keyof D : keyof {})]: ReturnType<Args> extends VariableParserArgBuilder<infer D> ? D[x] extends true ? string : string | undefined : never
+		}, invalid: (reason: string) => '') => string | Promise<string>
+	): this {
+		this.variables[name] = { args: args(new VariableParserArgBuilder())['arguments'], handler: handler as any }
+		return this
+	}
+
+	/**
+	 * Compile the Parser into something usable
+	 * @since 1.8.3
+	*/ public compile(): CompiledVariableParser<Data> {
+		return new CompiledVariableParser<Data>(this.variables)
+	}
+}
