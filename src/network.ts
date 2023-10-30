@@ -425,7 +425,7 @@ const inspectSymbol = Symbol.for('nodejs.util.inspect.custom')
  * ```
  * @returns ms it took to connect or false if failed
  * @since 1.1.0
-*/ export function test(host: string, port: number, timeout: number = 10000): Promise<number | false> {
+*/ export function test(host: string | IPAddress, port: number, timeout: number = 10000): Promise<number | false> {
 	return new Promise((resolve) => {
 		const start = performance.now()
 		const timer = setTimeout(() => {
@@ -434,8 +434,8 @@ const inspectSymbol = Symbol.for('nodejs.util.inspect.custom')
 		}, timeout)
 
 		const connection = net.createConnection({
-			host, port,
-			keepAlive: false
+			host: typeof host === 'string' ? host : host.long(),
+			port, keepAlive: false
 		})
 
 		connection
@@ -599,7 +599,7 @@ const inspectSymbol = Symbol.for('nodejs.util.inspect.custom')
  * ```
  * import { network } from "@rjweb/utils"
  * 
- * console.log(`View at http://${(await network.currentIP('v4'))?.long()} or http://[${(await network.currentIP('v6'))?.long()}}`)
+ * console.log(`View at http://${(await network.currentIP('v4'))?.long()} or http://[${(await network.currentIP('v6'))?.long()}]`)
  * ```
  * @since 1.8.4
 */ export async function currentIP<Type extends 'v4' | 'v6' | undefined>(type?: Type): Promise<(Type extends 'v4' ? Type extends 'v6' ? IPAddress<4> | IPAddress<4> : IPAddress<4> : IPAddress<6>) | null> {
