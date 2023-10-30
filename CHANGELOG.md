@@ -1,3 +1,7 @@
+## 1.8.4
+
+- Add `network.currentIP`
+
 ## 1.8.3
 
 - Add `string.replaceAsync`

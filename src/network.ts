@@ -590,3 +590,24 @@ const inspectSymbol = Symbol.for('nodejs.util.inspect.custom')
 
 	return false
 }
+
+/**
+ * Get the current public IP Address
+ * 
+ * (i) This uses fetch + https://ip.rjns.dev (located in germany, falkenstein - no logs)
+ * @example
+ * ```
+ * import { network } from "@rjweb/utils"
+ * 
+ * console.log(`View at http://${(await network.currentIP('v4'))?.long()} or http://[${(await network.currentIP('v6'))?.long()}}`)
+ * ```
+ * @since 1.8.4
+*/ export async function currentIP<Type extends 'v4' | 'v6' | undefined>(type?: Type): Promise<(Type extends 'v4' ? Type extends 'v6' ? IPAddress<4> | IPAddress<4> : IPAddress<4> : IPAddress<6>) | null> {
+	try {
+		const ip = await fetch(`https://${type === 'v4' ? 'ipv4' : type === 'v6' ? 'ipv6' : 'ip'}.rjns.dev`)
+
+		return new IPAddress(await ip.text()) as any
+	} catch {
+		return null
+	}
+}

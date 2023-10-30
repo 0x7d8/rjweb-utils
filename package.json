@@ -1,10 +1,13 @@
 {
   "name": "@rjweb/utils",
-  "version": "1.8.3",
+  "version": "1.8.4",
   "description": "Easy and Lightweight Utilities",
   "module": "lib/esm/index.js",
   "main": "lib/cjs/index.js",
   "types": "lib/typings/index.d.ts",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "build": "rm -rf lib && tsc && esbuild `find src -type f -name \"*.ts\"` --platform='node' --ignore-annotations --format='cjs' --outdir='lib/cjs' && esbuild `find src -type f -name \"*.ts\"` --platform='node' --ignore-annotations --format='esm' --outdir='lib/esm' && cp package.json lib/cjs/pckg.json && cp package.json lib/esm/pckg.json",
     "docs": "rm -rf docs && typedoc --out docs src/index.ts && sed -i -e 's|<meta charSet=\"utf-8\"/>|<meta charSet=\"utf-8\"/><link rel=\"icon\" type=\"image/png\" href=\"https://img.rjansen.de/rjweb/icon.png\">|' docs/**/*.html && chmod -R a+rw docs",
@@ -34,7 +37,7 @@
   "homepage": "https://github.com/0x7d8/rjweb-utils#readme",
   "devDependencies": {
     "@rjweb/utils": "link:.",
-    "@types/node": "^18.11.18",
+    "@types/node": "^20.0.0",
     "esbuild": "^0.17.2",
     "typedoc": "^0.25.1",
     "typescript": "^5.1.0"
