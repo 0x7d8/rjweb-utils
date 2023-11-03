@@ -252,7 +252,7 @@ export const MAX_IPV4_LONG = 4294967295,
 	 * ip.short() // 127.1
 	 * ```
 	 * @since 1.7.0
-	*/ constructor(ip: string | IPAddress | Uint8Array | Uint16Array, type?: Type) {
+	*/ constructor(ip: string | number | bigint | IPAddress | Uint8Array | Uint16Array, type?: Type) {
 		if (ip instanceof IPAddress) {
 			if (type && type !== ip.type) throw new Error('Not Expected Type')
 
@@ -274,6 +274,34 @@ export const MAX_IPV4_LONG = 4294967295,
 
 			this.type = as<Type>(6)
 			this.rawData = as<any>(ip)
+
+			return
+		} else if (typeof ip === 'number') {
+			if (ip > MAX_IPV4_LONG || ip < 0) throw new Error(`Invalid IP \`${ip}\``)
+
+			this.type = as<Type>(4)
+			this.rawData = as<any>(new Uint8Array([
+				(ip >> 24) & 0xFF,
+				(ip >> 16) & 0xFF,
+				(ip >> 8) & 0xFF,
+				ip & 0xFF
+			]))
+
+			return
+		} else if (typeof ip === 'bigint') {
+			if (ip > MAX_IPV6_LONG || ip < BigInt(0)) throw new Error(`Invalid IP \`${ip}\``)
+
+			this.type = as<Type>(6)
+			this.rawData = as<any>(new Uint16Array([
+				Number((ip >> BigInt(112)) & BigInt(0xFFFF)),
+				Number((ip >> BigInt(96)) & BigInt(0xFFFF)),
+				Number((ip >> BigInt(80)) & BigInt(0xFFFF)),
+				Number((ip >> BigInt(64)) & BigInt(0xFFFF)),
+				Number((ip >> BigInt(48)) & BigInt(0xFFFF)),
+				Number((ip >> BigInt(32)) & BigInt(0xFFFF)),
+				Number((ip >> BigInt(16)) & BigInt(0xFFFF)),
+				Number(ip & BigInt(0xFFFF))
+			]))
 
 			return
 		}
@@ -315,9 +343,9 @@ export const MAX_IPV4_LONG = 4294967295,
 						if (ints[0] > 255) {
 							this.rawData.set([
 								(ints[0] >> 24) & 0xFF,
-								(ints[1] >> 16) & 0xFF,
-								(ints[2] >> 8) & 0xFF,
-								ints[3] & 0xFF
+								(ints[0] >> 16) & 0xFF,
+								(ints[0] >> 8) & 0xFF,
+								ints[0] & 0xFF
 							])
 
 							break
@@ -545,34 +573,20 @@ export const MAX_IPV4_LONG = 4294967295,
 	})
 }
 
-function checkV6(ip: string): boolean {
-	const segments = ip.split(':')
-	if (segments.length > 8 || segments.length === 2) return false
+function checkV4(ip: string): boolean {
+	const segments = ip.split('.')
+	if (segments.length > 4) return false
 
 	if (segments.length > 1) {
-		if (segments[0] === '') segments.splice(0, 1)
-
-		let doubleSegments = 0
 		for (const segment of segments) {
-			if (doubleSegments > 1) return false
-			if (segment === '') {
-				doubleSegments++
-				continue
-			}
-
-			const int = parseInt(segment, 16)
+			const int = parseInt(segment)
 			if (isNaN(int)) return false
-			if (int < 0 || int > 65535) return false
+			if (int < 0 || int > 255) return false
 		}
-
-		if (doubleSegments === 0 && segments.length !== 8) return false
 	} else {
-		try {
-			const int = BigInt(ip)
-			if (int < 0 || int > MAX_IPV6_LONG) return false
-		} catch {
-			return false
-		}
+		const int = parseInt(ip)
+		if (isNaN(int)) return false
+		if (int < 0 || int > MAX_IPV4_LONG) return false
 	}
 
 	return true
@@ -594,28 +608,42 @@ function checkV6(ip: string): boolean {
  * @returns IP Type or false if failed
  * @since 1.1.0
 */ export function isIP(ip: string, type: 'v4' | 'v6' | 'v6 | v4' = 'v6 | v4'): 'v4' | 'v6' | false {
-	if (type !== 'v4') {
-		const res = checkV6(ip)
-		if (res) return 'v6'
+	if (type !== 'v6') {
+		const res = checkV4(ip)
+		if (res) return 'v4'
 	}
 
-	if (type !== 'v6') {
-		const segments = ip.split('.')
-		if (segments.length > 4) return false
+	if (type !== 'v4') {
+		const segments = ip.split(':')
+		if (segments.length > 8 || segments.length === 2) return false
 
 		if (segments.length > 1) {
+			if (segments[0] === '') segments.splice(0, 1)
+
+			let doubleSegments = 0
 			for (const segment of segments) {
-				const int = parseInt(segment)
+				if (doubleSegments > 1) return false
+				if (segment === '') {
+					doubleSegments++
+					continue
+				}
+
+				const int = parseInt(segment, 16)
 				if (isNaN(int)) return false
-				if (int < 0 || int > 255) return false
+				if (int < 0 || int > 65535) return false
 			}
+
+			if (doubleSegments === 0 && segments.length !== 8) return false
 		} else {
-			const int = parseInt(ip)
-			if (isNaN(int)) return false
-			if (int < 0 || int > MAX_IPV4_LONG) return false
+			try {
+				const int = BigInt(ip)
+				if (int < 0 || int > MAX_IPV6_LONG) return false
+			} catch {
+				return false
+			}
 		}
 
-		return 'v4'
+		return 'v6'
 	}
 
 	return false

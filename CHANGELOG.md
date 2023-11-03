@@ -1,3 +1,9 @@
+## 1.8.7
+
+- Prioritize ipv4 for checking (to improve "long" parsing)
+- Allow passing in number (v4) and bigint (v6) into IPAddress constructor
+- Fix IPv4 long parsing breaking
+
 ## 1.8.6
 
 - Add `network.<IPAddress>.int`
