@@ -4,6 +4,9 @@ import { as } from "."
 
 const inspectSymbol = Symbol.for('nodejs.util.inspect.custom')
 
+export const MAX_IPV4_LONG = 4294967295,
+	MAX_IPV6_LONG = BigInt('340282366920938463463374607431768211455')
+
 /**
  * A Respresentation of a Subnet
  * @example
@@ -309,6 +312,17 @@ const inspectSymbol = Symbol.for('nodejs.util.inspect.custom')
 					}
 
 					case 1: {
+						if (ints[0] > 255) {
+							this.rawData.set([
+								(ints[0] >> 24) & 0xFF,
+								(ints[1] >> 16) & 0xFF,
+								(ints[2] >> 8) & 0xFF,
+								ints[3] & 0xFF
+							])
+
+							break
+						}
+
 						this.rawData.set(ints)
 
 						break
@@ -333,21 +347,36 @@ const inspectSymbol = Symbol.for('nodejs.util.inspect.custom')
 
 				const ints = segments.map((segment) => !segment ? false : parseInt(segment, 16))
 
-				let doubleIx: number | null = null
-				for (let i = 0; i < ints.length; i++) {
-					if (ints[i] === false) {
-						doubleIx = i
-						break
+				if (ints.length > 1) {
+					let doubleIx: number | null = null
+					for (let i = 0; i < ints.length; i++) {
+						if (ints[i] === false) {
+							doubleIx = i
+							break
+						}
 					}
-				}
 
-				if (doubleIx !== null) {
-					const start = as<number[]>(ints.slice(0, doubleIx)),
-						end = as<number[]>(ints.slice(doubleIx + 1))
+					if (doubleIx !== null) {
+						const start = as<number[]>(ints.slice(0, doubleIx)),
+							end = as<number[]>(ints.slice(doubleIx + 1))
 
-					this.rawData.set(start.concat(Array.from({ length: 8 - (start.length + end.length) }, () => 0)).concat(end))
+						this.rawData.set(start.concat(Array.from({ length: 8 - (start.length + end.length) }, () => 0)).concat(end))
+					} else {
+						this.rawData.set(ints as number[])
+					}
 				} else {
-					this.rawData.set(ints as number[])
+					const int = BigInt(segments[0])
+
+					this.rawData.set([
+						Number((int >> BigInt(112)) & BigInt(0xFFFF)),
+						Number((int >> BigInt(96)) & BigInt(0xFFFF)),
+						Number((int >> BigInt(80)) & BigInt(0xFFFF)),
+						Number((int >> BigInt(64)) & BigInt(0xFFFF)),
+						Number((int >> BigInt(48)) & BigInt(0xFFFF)),
+						Number((int >> BigInt(32)) & BigInt(0xFFFF)),
+						Number((int >> BigInt(16)) & BigInt(0xFFFF)),
+						Number(int & BigInt(0xFFFF))
+					])
 				}
 
 				break
@@ -377,6 +406,16 @@ const inspectSymbol = Symbol.for('nodejs.util.inspect.custom')
 
 
 	/**
+	 * Get the Usual representation of this IPs Version
+	 * 
+	 * Returns `.long()` for v4 and `.short()` for v6
+	 * @since 1.8.5
+	*/ public usual(): string {
+		if (this.type === 4) return this.long()
+		else return this.short()
+	}
+
+	/**
 	 * Get the Long representation of this IP
 	 * @since 1.7.0
 	*/ public long(): string {
@@ -385,16 +424,6 @@ const inspectSymbol = Symbol.for('nodejs.util.inspect.custom')
 		} else {
 			return [ ...this.rawData ].map((seg) => seg.toString(16).padStart(4, '0')).join(':')
 		}
-	}
-
-	/**
-	 * Get the Usual representation of this IPs Version
-	 * 
-	 * Returns `.long()` for v4 and `.short()` for v6
-	 * @since 1.8.5
-	*/ public usual(): string {
-		if (this.type === 4) return this.long()
-		else return this.short()
 	}
 
 	/**
@@ -417,6 +446,27 @@ const inspectSymbol = Symbol.for('nodejs.util.inspect.custom')
 			ip = ip.replace(/(^|:)(0(:|$)){2,}/, '::')
 
 			return ip
+		}
+	}
+
+	/**
+	 * Get the Integer Representation of this IP
+	 * @since 1.8.6
+	*/ public int(): Type extends 4 ? Type extends 6 ? bigint | number : number : bigint {
+		if (this.type === 4) {
+			return ((this.rawData[0] << 24)
+				+ (this.rawData[1] << 16)
+				+ (this.rawData[2] << 8)
+				+ this.rawData[3]) >>> 0 as any
+		} else {
+			return (BigInt(this.rawData[0]) << BigInt(112))
+				+ (BigInt(this.rawData[1]) << BigInt(96))
+				+ (BigInt(this.rawData[2]) << BigInt(80))
+				+ (BigInt(this.rawData[3]) << BigInt(64))
+				+ (BigInt(this.rawData[4]) << BigInt(48))
+				+ (BigInt(this.rawData[5]) << BigInt(32))
+				+ (BigInt(this.rawData[6]) << BigInt(16))
+				+ BigInt(this.rawData[7]) as any
 		}
 	}
 
@@ -495,26 +545,11 @@ const inspectSymbol = Symbol.for('nodejs.util.inspect.custom')
 	})
 }
 
-/**
- * Check if an IP is valid
- * @example
- * ```
- * import { network } from "@rjweb/utils"
- * 
- * network.isIP('127.0.0.1', 'v4') // 'v4'
- * network.isIP('127.0.0.1', 'v6') // false
- * network.isIP('::1', 'v4') // false
- * network.isIP('::1', 'v6') // 'v6'
- * network.isIP('127.0.0.1', 'v6 | v4') // 'v4'
- * network.isIP('1.1') // 'v4'
- * ```
- * @returns IP Type or false if failed
- * @since 1.1.0
-*/ export function isIP(ip: string, type: 'v4' | 'v6' | 'v6 | v4' = 'v6 | v4'): 'v4' | 'v6' | false {
-	if (type !== 'v4' && ip.includes(':')) {
-		const segments = ip.split(':')
-		if (segments.length > 8 || segments.length <= 2) return false
+function checkV6(ip: string): boolean {
+	const segments = ip.split(':')
+	if (segments.length > 8 || segments.length === 2) return false
 
+	if (segments.length > 1) {
 		if (segments[0] === '') segments.splice(0, 1)
 
 		let doubleSegments = 0
@@ -531,13 +566,44 @@ const inspectSymbol = Symbol.for('nodejs.util.inspect.custom')
 		}
 
 		if (doubleSegments === 0 && segments.length !== 8) return false
+	} else {
+		try {
+			const int = BigInt(ip)
+			if (int < 0 || int > MAX_IPV6_LONG) return false
+		} catch {
+			return false
+		}
+	}
 
-		return 'v6'
-	} else if (type !== 'v6') {
+	return true
+}
+
+/**
+ * Check if an IP is valid
+ * @example
+ * ```
+ * import { network } from "@rjweb/utils"
+ * 
+ * network.isIP('127.0.0.1', 'v4') // 'v4'
+ * network.isIP('127.0.0.1', 'v6') // false
+ * network.isIP('::1', 'v4') // false
+ * network.isIP('::1', 'v6') // 'v6'
+ * network.isIP('127.0.0.1', 'v6 | v4') // 'v4'
+ * network.isIP('1.1') // 'v4'
+ * ```
+ * @returns IP Type or false if failed
+ * @since 1.1.0
+*/ export function isIP(ip: string, type: 'v4' | 'v6' | 'v6 | v4' = 'v6 | v4'): 'v4' | 'v6' | false {
+	if (type !== 'v4') {
+		const res = checkV6(ip)
+		if (res) return 'v6'
+	}
+
+	if (type !== 'v6') {
 		const segments = ip.split('.')
 		if (segments.length > 4) return false
 
-		if (segments.length) {
+		if (segments.length > 1) {
 			for (const segment of segments) {
 				const int = parseInt(segment)
 				if (isNaN(int)) return false
@@ -546,7 +612,7 @@ const inspectSymbol = Symbol.for('nodejs.util.inspect.custom')
 		} else {
 			const int = parseInt(ip)
 			if (isNaN(int)) return false
-			if (int < 0 || int > 255) return false
+			if (int < 0 || int > MAX_IPV4_LONG) return false
 		}
 
 		return 'v4'
