@@ -1,3 +1,9 @@
+## 1.8.5
+
+- Add `network.<IPAddress>.usual`
+- Add `network.<IPAddress>.equals`
+- Add `network.download`
+
 ## 1.8.4
 
 - Add `network.currentIP`

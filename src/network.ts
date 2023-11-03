@@ -1,4 +1,5 @@
 import * as net from "net"
+import * as fs from "fs"
 import { as } from "."
 
 const inspectSymbol = Symbol.for('nodejs.util.inspect.custom')
@@ -387,6 +388,16 @@ const inspectSymbol = Symbol.for('nodejs.util.inspect.custom')
 	}
 
 	/**
+	 * Get the Usual representation of this IPs Version
+	 * 
+	 * Returns `.long()` for v4 and `.short()` for v6
+	 * @since 1.8.5
+	*/ public usual(): string {
+		if (this.type === 4) return this.long()
+		else return this.short()
+	}
+
+	/**
 	 * Get the Short representation of this IP
 	 * @since 1.7.0
 	*/ public short(): string {
@@ -407,6 +418,33 @@ const inspectSymbol = Symbol.for('nodejs.util.inspect.custom')
 
 			return ip
 		}
+	}
+
+	/**
+	 * Whether this IP Equals another IP
+	 * @since 1.8.5
+	*/ public equals(compareTo: IPAddress): compareTo is this {
+		if (compareTo.type !== this.type) return false
+
+		switch (this.type) {
+			case 4: {
+				for (let i = 0; i < 4; i++) {
+					if (this.rawData[i] !== compareTo.rawData[i]) return false
+				}
+
+				break
+			}
+
+			case 6: {
+				for (let i = 0; i < 8; i++) {
+					if (this.rawData[i] !== compareTo.rawData[i]) return false
+				}
+
+				break
+			}
+		}
+
+		return true
 	}
 
 	protected [inspectSymbol](): string {
@@ -609,5 +647,34 @@ const inspectSymbol = Symbol.for('nodejs.util.inspect.custom')
 		return new IPAddress(await ip.text()) as any
 	} catch {
 		return null
+	}
+}
+
+/**
+ * Download a resource to the filesystem using `fetch` and `fs.createWriteStream`, default method is `GET`
+ * @example
+ * ```
+ * import { network } from "@rjweb/utils"
+ * 
+ * await network.download('http://speedtest.belwue.net/random-1G', '/tmp/1gb.test') // 14314.149778962135
+ * ```
+ * @returns Time it took to download in ms
+ * @since 1.8.5
+*/ export async function download(url: string, file: fs.PathLike, options?: RequestInit): Promise<number> {
+	const startTime = performance.now()
+
+	const response = await fetch(url, options)
+	if (!response.body) throw new Error('No Response Body')
+
+	const writeStream = fs.createWriteStream(file)
+
+	try {
+		for await (const chunk of response.body) {
+			writeStream.write(chunk)
+		}
+
+		return performance.now() - startTime
+	} finally {
+		writeStream.close()
 	}
 }
