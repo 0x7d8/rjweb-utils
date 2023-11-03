@@ -665,36 +665,7 @@ function checkV4(ip: string): boolean {
  * @returns Subnet IP Type or false if failed
  * @since 1.7.0
 */ export function isSubnet(ip: string, type: 'v4' | 'v6' | 'v6 | v4' = 'v6 | v4'): 'v4' | 'v6' | false {
-	if (type !== 'v4' && ip.includes(':')) {
-		const [ content, mask ] = ip.split('/')
-		if (mask) {
-			const int = parseInt(mask)
-			if (isNaN(int)) return false
-			if (int < 0 && int > 128) return false
-		} else return false
-
-		const segments = content.split(':')
-		if (segments.length > 8 || segments.length <= 2) return false
-
-		if (segments[0] === '') segments.splice(0, 1)
-
-		let doubleSegments = 0
-		for (const segment of segments) {
-			if (doubleSegments > 1) return false
-			if (segment === '') {
-				doubleSegments++
-				continue
-			}
-
-			const int = parseInt(segment, 16)
-			if (isNaN(int)) return false
-			if (int < 0 || int > 65535) return false
-		}
-
-		if (doubleSegments === 0 && segments.length !== 8) return false
-
-		return 'v6'
-	} else if (type !== 'v6') {
+	if (type !== 'v6') {
 		const [ content, mask ] = ip.split('/')
 		if (mask) {
 			const int = parseInt(mask)
@@ -702,22 +673,19 @@ function checkV4(ip: string): boolean {
 			if (int < 0 && int > 32) return false
 		} else return false
 
-		const segments = content.split('.')
-		if (segments.length > 4) return false
+		const result = isIP(content, 'v4')
+		if (result) return result
+	}
 
-		if (segments.length) {
-			for (const segment of segments) {
-				const int = parseInt(segment)
-				if (isNaN(int)) return false
-				if (int < 0 || int > 255) return false
-			}
-		} else {
-			const int = parseInt(ip)
+	if (type !== 'v4') {
+		const [ content, mask ] = ip.split('/')
+		if (mask) {
+			const int = parseInt(mask)
 			if (isNaN(int)) return false
-			if (int < 0 || int > 255) return false
-		}
+			if (int < 0 && int > 128) return false
+		} else return false
 
-		return 'v4'
+		return isIP(content, 'v6')
 	}
 
 	return false

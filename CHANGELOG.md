@@ -1,3 +1,7 @@
+## 1.8.8
+
+- Support "long" format in subnets
+
 ## 1.8.7
 
 - Prioritize ipv4 for checking (to improve "long" parsing)
