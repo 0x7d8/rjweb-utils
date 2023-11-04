@@ -1,3 +1,9 @@
+## 1.9.0
+
+- Add `stream`
+- Add `filesystem.stream`
+- Add `network.stream`
+
 ## 1.8.8
 
 - Support "long" format in subnets

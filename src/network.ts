@@ -740,3 +740,22 @@ function checkV4(ip: string): boolean {
 		writeStream.close()
 	}
 }
+
+/**
+ * Stream a Resource Chunk by Chunk
+ * @example
+ * ```
+ * import { network } from "@rjweb/utils"
+ * 
+ * const decoder = new TextDecoder()
+ * for await (const chunk of await network.stream('https://google.com')) {
+ *   process.stdout.write(decoder.decode(chunk))
+ * }
+ * ```
+ * @since 1.9.0
+*/ export async function stream(url: string, options?: RequestInit): Promise<AsyncIterable<Uint8Array>> {
+	const response = await fetch(url, options)
+	if (!response.body) throw new Error('No Response Body')
+
+	return response.body
+}

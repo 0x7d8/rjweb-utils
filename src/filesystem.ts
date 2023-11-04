@@ -1,6 +1,6 @@
 import * as fs from "fs"
 import * as path from "path"
-import { as } from "."
+import { as, stream as _stream } from "."
 
 /**
  * Get Files from a folder
@@ -96,4 +96,24 @@ import { as } from "."
 
 		return files as never
 	}
+}
+
+/**
+ * Stream a File Chunk by Chunk
+ * @example
+ * ```
+ * import { filesystem } from "@rjweb/utils"
+ * 
+ * for await (const chunk of filesystem.stream('./file.txt')) {
+ *   process.stdout.write(chunk.toString())
+ * }
+ * ```
+ * @since 1.9.0
+*/ export function stream(file: fs.PathLike, options?: { slice?: { start?: number, end?: number } }): AsyncIterable<Buffer> {
+	const stream = fs.createReadStream(file, {
+		start: options?.slice?.start,
+		end: options?.slice?.end
+	})
+
+	return _stream.iterator(stream)
 }
