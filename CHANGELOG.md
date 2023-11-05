@@ -1,3 +1,7 @@
+## 1.9.2
+
+- Add `filesystem.stream().lines`
+
 ## 1.9.1
 
 - Add `array.random`

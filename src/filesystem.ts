@@ -1,5 +1,6 @@
 import * as fs from "fs"
 import * as path from "path"
+import * as rl from "readline"
 import { as, stream as _stream } from "."
 
 /**
@@ -99,7 +100,7 @@ import { as, stream as _stream } from "."
 }
 
 /**
- * Stream a File Chunk by Chunk
+ * Stream a File Chunk by Chunk (or Line by Line)
  * @example
  * ```
  * import { filesystem } from "@rjweb/utils"
@@ -107,13 +108,21 @@ import { as, stream as _stream } from "."
  * for await (const chunk of filesystem.stream('./file.txt')) {
  *   process.stdout.write(chunk.toString())
  * }
+ * 
+ * for await (const line of filesystem.stream('./file.txt').lines()) {
+ *   console.log('Line: ', line)
+ * }
  * ```
  * @since 1.9.0
-*/ export function stream(file: fs.PathLike, options?: { slice?: { start?: number, end?: number } }): AsyncIterable<Buffer> {
+*/ export function stream(file: fs.PathLike, options?: { slice?: { start?: number, end?: number } }): AsyncIterable<Buffer> & { lines(): AsyncIterable<string> } {
 	const stream = fs.createReadStream(file, {
 		start: options?.slice?.start,
 		end: options?.slice?.end
 	})
 
-	return _stream.iterator(stream)
+	return Object.assign(_stream.iterator(stream), {
+		lines() {
+			return rl.createInterface(stream)
+		}
+	})
 }
