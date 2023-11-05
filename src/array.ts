@@ -1,3 +1,5 @@
+import * as number from "./number"
+
 /**
  * Remove something from an Array
  * @example
@@ -46,6 +48,8 @@
  * ```
  * @since 1.4.4
 */ export function rotate<Arr extends any[]>(input: Arr, rotations: number): Arr {
+	if (input.length < 2) return input
+
 	const arr = Array.from(input) as Arr
 
 	for (let i = 0; i < rotations; i++) {
@@ -120,4 +124,42 @@
 	}
 
 	return true
+}
+
+/**
+ * Get a random value of an Array
+ * @example
+ * ```
+ * import { array } from "@rjweb/utils"
+ * 
+ * const arr = ['A', 'B', 'C', 'D', 'E']
+ * 
+ * array.random(arr, 2) // ['C']
+ * array.random(arr, 4) // ['A']
+ * ```
+ * @since 1.9.1
+*/ export function random<Arr extends any[]>(input: Arr): Arr[number] | undefined {
+	if (!input.length) return undefined
+
+  return input[number.generate(0, input.length)]
+}
+
+/**
+ * Randomize an Array
+ * @example
+ * ```
+ * import { array } from "@rjweb/utils"
+ * 
+ * const arr = ['A', 'B', 'C', 'D', 'E']
+ * 
+ * array.randomize(arr) // ['C', 'D', 'E', 'A', 'B']
+ * array.randomize(arr) // ['E', 'A', 'C', 'B', 'D']
+ * ```
+ * @since 1.9.1
+*/ export function randomize<Arr extends any[]>(input: Arr): Arr {
+	if (input.length < 2) return input
+
+	const arr = Array.from(input) as Arr
+
+  return arr.sort(() => Math.random() > Math.random() ? 1 : -1)
 }

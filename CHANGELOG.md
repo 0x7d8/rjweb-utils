@@ -1,3 +1,8 @@
+## 1.9.1
+
+- Add `array.random`
+- Add `array.randomize`
+
 ## 1.9.0
 
 - Add `stream`
