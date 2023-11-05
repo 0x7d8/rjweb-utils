@@ -1,3 +1,8 @@
+## 1.9.3
+
+- Dont require `network.stream` itself to be awaited
+- Add `network.stream().text`
+
 ## 1.9.2
 
 - Add `filesystem.stream().lines`

@@ -748,14 +748,67 @@ function checkV4(ip: string): boolean {
  * import { network } from "@rjweb/utils"
  * 
  * const decoder = new TextDecoder()
- * for await (const chunk of await network.stream('https://google.com')) {
+ * for await (const chunk of network.stream('https://google.com')) {
  *   process.stdout.write(decoder.decode(chunk))
+ * }
+ * 
+ * for await (const chunk of network.stream('https://google.com').text()) {
+ *   process.stdout.write(chunk)
  * }
  * ```
  * @since 1.9.0
-*/ export async function stream(url: string, options?: RequestInit): Promise<AsyncIterable<Uint8Array>> {
-	const response = await fetch(url, options)
-	if (!response.body) throw new Error('No Response Body')
+*/ export function stream(url: string, options?: RequestInit): AsyncIterable<Uint8Array> & { text(): AsyncIterable<string> } {
+	let fetched: Response | null = null, fetchIterator: AsyncIterableIterator<any> | null = null
+	const decoder = new TextDecoder()
 
-	return response.body
+	return {
+		[Symbol.asyncIterator]() {
+			return {
+				async next(): Promise<IteratorResult<any, any>> {
+					if (fetchIterator) return fetchIterator.next()
+
+					if (!fetched) fetched = await fetch(url, options)
+					if (!fetched.body) throw new Error('No Response Body')
+
+					fetchIterator = fetched.body[Symbol.asyncIterator]()
+
+					return fetchIterator.next()
+				}, async return() {
+					if (!fetchIterator?.return) return { done: true, value: new Uint8Array(0) }
+					else return fetchIterator.return()
+				}, async throw(e) {
+					if (!fetchIterator?.throw) return { done: true, value: new Uint8Array(0) }
+					else return fetchIterator.throw(e)
+				}
+			}
+		}, text() {
+			return {
+				[Symbol.asyncIterator]() {
+					return {
+						async next(): Promise<IteratorResult<any, any>> {
+							if (fetchIterator) {
+								const result = await fetchIterator.next()
+
+								return { done: result.done, value: decoder.decode(result.value) }
+							}
+
+							if (!fetched) fetched = await fetch(url, options)
+							if (!fetched.body) throw new Error('No Response Body')
+		
+							fetchIterator = fetched.body[Symbol.asyncIterator]()
+
+							const result = await fetchIterator.next()
+							return { done: result.done, value: decoder.decode(result.value) }
+						}, async return() {
+							if (!fetchIterator?.return) return { done: true, value: '' }
+							else return fetchIterator.return()
+						}, async throw(e) {
+							if (!fetchIterator?.throw) return { done: true, value: '' }
+							else return fetchIterator.throw(e)
+						}
+					}
+				}
+			}
+		}
+	}
 }
