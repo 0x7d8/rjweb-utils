@@ -1,3 +1,7 @@
+## 1.10.1
+
+- Export `func` properly
+
 ## 1.10.0
 
 - Add `func`
