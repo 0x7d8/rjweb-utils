@@ -1,3 +1,8 @@
+## 1.10.0
+
+- Add `func`
+- Fix some JSDocs
+
 ## 1.9.3
 
 - Dont require `network.stream` itself to be awaited

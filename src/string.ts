@@ -128,7 +128,7 @@ const _string = (options: Record<string, any>) => {
 	 * @default "hex"
 	 * @since 1.0.0
 	*/ output?: BufferEncoding | 'buffer'
-}>(input: string, key: string, options?: Options): Options['output'] extends 'buffer' ? Buffer : string {
+}>(input: string, key: crypto.BinaryLike, options?: Options): Options['output'] extends 'buffer' ? Buffer : string {
 	const pOptions = {
 		algorithm: options?.algorithm ?? 'aes-256-cbc',
 		output: options?.output ?? 'hex'
@@ -167,7 +167,7 @@ const _string = (options: Record<string, any>) => {
 	 * @default "hex"
 	 * @since 1.0.0
 	*/ input?: BufferEncoding | 'buffer'
-}>(input: Options['input'] extends 'buffer' ? Buffer : string, key: string, options?: Options): string {
+}>(input: Options['input'] extends 'buffer' ? Buffer : string, key: crypto.BinaryLike, options?: Options): string {
 	const pOptions = {
 		algorithm: options?.algorithm ?? 'aes-256-cbc',
 		input: options?.input ?? 'hex'

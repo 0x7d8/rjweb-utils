@@ -33,7 +33,7 @@ function cpuAverage() {
  * @since 1.3.0
 */ export function execute<Options extends {
 	/**
-	 * Whether to use async fs
+	 * Whether to use async child_process
 	 * @default false
 	 * @since 1.3.0
 	*/ async?: boolean
