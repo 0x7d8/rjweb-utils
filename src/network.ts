@@ -608,7 +608,7 @@ function checkV4(ip: string): boolean {
  * @returns IP Type or false if failed
  * @since 1.1.0
 */ export function isIP(ip: string, type: 'v4' | 'v6' | 'v6 | v4' = 'v6 | v4'): 'v4' | 'v6' | false {
-	if (type !== 'v6') {
+	if (type !== 'v6' && !ip.includes(':')) {
 		const res = checkV4(ip)
 		if (res) return 'v4'
 	}
@@ -665,7 +665,7 @@ function checkV4(ip: string): boolean {
  * @returns Subnet IP Type or false if failed
  * @since 1.7.0
 */ export function isSubnet(ip: string, type: 'v4' | 'v6' | 'v6 | v4' = 'v6 | v4'): 'v4' | 'v6' | false {
-	if (type !== 'v6') {
+	if (type !== 'v6' && !ip.includes(':')) {
 		const [ content, mask ] = ip.split('/')
 		if (mask) {
 			const int = parseInt(mask)

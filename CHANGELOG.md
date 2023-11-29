@@ -1,3 +1,8 @@
+## 1.10.2
+
+- Improve `dns.resolveHost`
+- Fix some IPv6 parsing issues
+
 ## 1.10.1
 
 - Export `func` properly

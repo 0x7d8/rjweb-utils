@@ -8,26 +8,22 @@ import * as dns from "dns"
  * import { dns } from "@rjweb/utils"
  * 
  * await dns.resolveHost('1.1.1.1') // <IPAddress v4 1.1.1.1>
- * await dns.resolveHost('google.com') // <IPAddress v4 142.250.185.78>
+ * await dns.resolveHost('google.com', 'v4') // <IPAddress v4 142.250.185.78>
+ * await dns.resolveHost('google.com', 'v6') // <IPAddress v4 2a00:1450:400d:803::200e:>
  * ```
  * @throws If no IP Could be resolved
  * @since 1.8.0
-*/ export async function resolveHost(host: string): Promise<IPAddress> {
+*/ export async function resolveHost(host: string, prefer: 'v4' | 'v6' = 'v4'): Promise<IPAddress> {
 	if (isIP(host)) return new IPAddress(host)
 
-	try {
-		const v4 = await dns.promises.resolve4(host)
-		if (!v4.length) throw 1
+	const [ [v4], [v6] ] = await Promise.all([
+		dns.promises.resolve4(host),
+		dns.promises.resolve6(host)
+	])
 
-		return new IPAddress(v4[0])
-	} catch {
-		try {
-			const v6 = await dns.promises.resolve6(host)
-			if (!v6.length) throw 1
+	if (!v4 && !v6) throw new Error(`No IP could be resolved for \`${host}\``)
 
-			return new IPAddress(v6[0])
-		} catch { }
-	}
-
-	throw new Error(`No IP could be resolved for \`${host}\``)
+	if (prefer === 'v4' && v4) return new IPAddress(v4)
+	else if (prefer === 'v6' && v6) return new IPAddress(v6)
+	else return new IPAddress(v4 || v6)
 }

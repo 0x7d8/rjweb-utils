@@ -134,8 +134,8 @@ import * as number from "./number"
  * 
  * const arr = ['A', 'B', 'C', 'D', 'E']
  * 
- * array.random(arr, 2) // ['C']
- * array.random(arr, 4) // ['A']
+ * array.random(arr, 2) // 'C'
+ * array.random(arr, 4) // 'A'
  * ```
  * @since 1.9.1
 */ export function random<Arr extends any[]>(input: Arr): Arr[number] | undefined {

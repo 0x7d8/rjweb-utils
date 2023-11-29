@@ -460,7 +460,7 @@ class VariableParserArgBuilder<Args extends Record<string, boolean> = {}> {
  *     (args) => args
  *       .required('text'),
  *     (data, args) => {
- *       retrun args.text
+ *       return args.text
  *     }
  *   )
  *   .compile()
