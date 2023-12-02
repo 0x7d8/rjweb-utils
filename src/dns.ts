@@ -16,14 +16,14 @@ import * as dns from "dns"
 */ export async function resolveHost(host: string, prefer: 'v4' | 'v6' = 'v4'): Promise<IPAddress> {
 	if (isIP(host)) return new IPAddress(host)
 
-	const [ [v4], [v6] ] = await Promise.all([
+	const [ v4, v6 ] = await Promise.allSettled([
 		dns.promises.resolve4(host),
 		dns.promises.resolve6(host)
 	])
 
-	if (!v4 && !v6) throw new Error(`No IP could be resolved for \`${host}\``)
+	if (v4.status === 'rejected' && v6.status === 'rejected') throw new Error(`No IP could be resolved for \`${host}\``)
 
-	if (prefer === 'v4' && v4) return new IPAddress(v4)
-	else if (prefer === 'v6' && v6) return new IPAddress(v6)
-	else return new IPAddress(v4 || v6)
+	if (prefer === 'v4' && v4.status === 'fulfilled') return new IPAddress(v4.value[0])
+	else if (prefer === 'v6' && v6.status === 'fulfilled') return new IPAddress(v6.value[0])
+	else return new IPAddress(v4.status === 'fulfilled' ? v4.value[0] : v6.status === 'fulfilled' ? v6.value[0] : '127.0.0.1')
 }

@@ -1,3 +1,7 @@
+## 1.10.3
+
+- Fix more DNS Resolving issues
+
 ## 1.10.2
 
 - Improve `dns.resolveHost`
