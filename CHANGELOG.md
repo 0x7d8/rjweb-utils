@@ -1,3 +1,8 @@
+## 1.10.4
+
+- Add `string.env`
+- Add `filesystem.env`
+
 ## 1.10.3
 
 - Fix more DNS Resolving issues

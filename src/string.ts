@@ -321,6 +321,32 @@ const _string = (options: Record<string, any>) => {
   }
 }
 
+/**
+ * Parse a String into an Object using basic env syntax
+ * 
+ * This parses line by line so an invalid line will just be skipped
+ * @example
+ * ```
+ * import { string } from "@rjweb/utils"
+ * 
+ * string.env('K=12') // {K:'12'}
+ * string.env('E="400"') // {E:'400'}
+ * string.env('some invalid string') // {}
+ * ```
+ * @since 1.10.4
+*/ export function env(input: string): Record<string, string> {
+	const parsed: Record<string, string> = {}
+
+	for (const line of input.split('\n')) {
+		const match = line.match(/^\s*([^=\s]+)\s*=\s*(?:(['"])(.*?)\2|([^'"\s]+))\s*(?:#.*)?$/)
+		if (!match) continue
+
+		parsed[match[1]] = match[3] || match[4]
+	}
+
+	return parsed
+}
+
 class CompiledVariableParser<Data> {
 	constructor(
 		private variables: Record<string, { args: Record<string, boolean>, handler: (data: Data, args: Record<string, string | undefined>, invalid: (reason: string) => '') => string | Promise<string> }>

@@ -1,7 +1,7 @@
 import * as fs from "fs"
 import * as path from "path"
 import * as rl from "readline"
-import { as, stream as _stream } from "."
+import { as, stream as _stream, string } from "."
 
 /**
  * Get Files from a folder
@@ -125,4 +125,23 @@ import { as, stream as _stream } from "."
 			return rl.createInterface(stream)
 		}
 	})
+}
+
+/**
+ * Parse a File into an Object using basic env syntax
+ * 
+ * This parses line by line so an invalid line will just be skipped
+ * @example
+ * ```
+ * import { filesystem } from "@rjweb/utils"
+ * 
+ * filesystem.env('./.env') // {K:'12'}
+ * filesystem.env('./.env.prod') // {E:'400'}
+ * filesystem.env('./invalid-env') // {}
+ * ```
+ * @since 1.10.4
+*/ export async function env(file: fs.PathLike): Promise<Record<string, string>> {
+	const content = await fs.promises.readFile(file, 'utf8')
+
+	return string.env(content)
 }

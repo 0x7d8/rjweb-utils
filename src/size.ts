@@ -1,5 +1,4 @@
 import { Multiply } from "ts-arithmetic"
-import { isPromise } from "util/types"
 
 class Size<Amount extends number, Factor extends 1000 | 1024 = 1024> {
 	private amount: Amount

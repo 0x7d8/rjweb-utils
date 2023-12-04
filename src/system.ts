@@ -21,7 +21,7 @@ function cpuAverage() {
 }
 
 /**
- * Run a Shell on the OS with command
+ * Run a Shell on the OS with a command
  * @example
  * ```
  * import { system } from "@rjweb/utils"
