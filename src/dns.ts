@@ -10,10 +10,10 @@ import * as dns from "dns"
  * await dns.resolve('1.1.1.1') // <IPAddress v4 1.1.1.1>
  * await dns.resolve('google.com', 'v4') // <IPAddress v4 142.250.185.78>
  * await dns.resolve('google.com', 'v6') // <IPAddress v4 2a00:1450:400d:803::200e:>
+ * await dns.resolve('google.cdom', 'v6') // null
  * ```
- * @throws If no IP Could be resolved
  * @since 1.8.0
-*/ export async function resolve(host: string, prefer: 'v4' | 'v6' = 'v4'): Promise<IPAddress> {
+*/ export async function resolve(host: string, prefer: 'v4' | 'v6' = 'v4'): Promise<IPAddress | null> {
 	if (isIP(host)) return new IPAddress(host)
 
 	const [ v4, v6 ] = await Promise.allSettled([
@@ -21,7 +21,7 @@ import * as dns from "dns"
 		dns.promises.resolve6(host)
 	])
 
-	if (v4.status === 'rejected' && v6.status === 'rejected') throw new Error(`No IP could be resolved for \`${host}\``)
+	if (v4.status === 'rejected' && v6.status === 'rejected') return null
 
 	if (prefer === 'v4' && v4.status === 'fulfilled') return new IPAddress(v4.value[0])
 	else if (prefer === 'v6' && v6.status === 'fulfilled') return new IPAddress(v6.value[0])
@@ -34,18 +34,17 @@ import * as dns from "dns"
  * ```
  * import { dns, network } from "@rjweb/utils"
  * 
- * await dns.reverse('1.1.1.1') // ['']
- * await dns.reverse('google.com', 'v4') // <IPAddress v4 142.250.185.78>
- * await dns.reverse('google.com', 'v6') // <IPAddress v4 2a00:1450:400d:803::200e:>
+ * await dns.reverse('1.1.1.1') // null
+ * await dns.reverse('google.com', 'v4') // 'fra16s53-in-f14.1e100.net'
+ * await dns.reverse('google.com', 'v6') // 'fra16s53-in-x0e.1e100.net'
  * ```
- * @throws If no Host Could be resolved
  * @since 1.10.5
-*/ export async function reverse(ip: IPAddress): Promise<string> {
+*/ export async function reverse(ip: IPAddress): Promise<string | null> {
 	try {
 		const result = await dns.promises.reverse(ip.long())
 
 		return result[0]
 	} catch {
-		throw new Error(`No Host could be resolved for \`${ip.usual()}\``)
+		return null
 	}
 }

@@ -1,3 +1,7 @@
+## 1.10.6
+
+- Change how error handling works in `dns.*`
+
 ## 1.10.5
 
 - Rename `dns.resolveHost` to `dns.resolve`
