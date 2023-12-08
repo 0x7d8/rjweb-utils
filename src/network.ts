@@ -466,14 +466,30 @@ export const MAX_IPV4_LONG = 4294967295,
 
 			return this.rawData.join('.')
 		} else {
-			let ip = [ ...this.rawData ]
+			let ip = '', doubleIx = false
+
+			for (const segment of this.rawData) {
+				if (!segment) {
+					if (!doubleIx) {
+						ip += ip ? ':' : '::'
+						doubleIx = true
+					}
+
+					continue
+				}
+
+				ip += `:${segment.toString(16)}`
+			}
+
+			/* let ip = [ ...this.rawData ]
         .map((seg) => seg.toString(16))
         .join(':')
 
 			ip = ip.replace(/(^|:)0+([0-9A-Fa-f]+)/g, '$1$2')
-			ip = ip.replace(/(^|:)(0(:|$)){2,}/, '::')
+			ip = ip.replace(/(^|:)(0(:|$)){2,}/, '::')*/
 
-			return ip
+			ip = ip.slice(1)
+			return ip.length === 1 ? '::' : ip
 		}
 	}
 
@@ -526,7 +542,7 @@ export const MAX_IPV4_LONG = 4294967295,
 	}
 
 	protected [inspectSymbol](): string {
-		return `<IPAddress v${this.type} ${this.long()}>`
+		return `<IPAddress v${this.type} ${this.usual()}>`
 	}
 }
 

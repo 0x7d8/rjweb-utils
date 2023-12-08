@@ -1,3 +1,8 @@
+## 1.10.5
+
+- Rename `dns.resolveHost` to `dns.resolve`
+- Add `dns.reverse`
+
 ## 1.10.4
 
 - Add `string.env`
