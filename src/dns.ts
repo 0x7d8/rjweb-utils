@@ -34,9 +34,14 @@ import * as dns from "dns"
  * ```
  * import { dns, network } from "@rjweb/utils"
  * 
- * await dns.reverse('1.1.1.1') // null
- * await dns.reverse('google.com', 'v4') // 'fra16s53-in-f14.1e100.net'
- * await dns.reverse('google.com', 'v6') // 'fra16s53-in-x0e.1e100.net'
+ * const [ googleV4, googleV6 ] = await Promise.all([
+ *   dns.resolve('google.com', 'v4'),
+ *   dns.resolve('google.com', 'v6')
+ * ])
+ * 
+ * await dns.reverse(new network.IPAddress('1.1.1.1')) // null
+ * await dns.reverse(googleV4) // 'fra16s53-in-f14.1e100.net'
+ * await dns.reverse(googleV6) // 'fra16s53-in-x0e.1e100.net'
  * ```
  * @since 1.10.5
 */ export async function reverse(ip: IPAddress): Promise<string | null> {

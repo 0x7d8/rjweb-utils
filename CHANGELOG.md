@@ -1,3 +1,11 @@
+## 1.11.0
+
+- Fix some Subnet calculations
+- Add `<Subnet>.includes`
+- Add `<Subnet>.mask`
+- Rename `<Subnet>.mask` to `<Subnet>.netmask`
+- Fix JSDoc Issues
+
 ## 1.10.6
 
 - Change how error handling works in `dns.*`

@@ -52,7 +52,7 @@ export const MAX_IPV4_LONG = 4294967295,
 			if (type && type !== subnet.type) throw new Error('Not Expected Type')
 
 			this.iFirst = subnet.iFirst
-			this.mask = subnet.mask
+			this.netmask = subnet.netmask
 			this.type = subnet.type
 
 			return
@@ -68,7 +68,7 @@ export const MAX_IPV4_LONG = 4294967295,
 				if (type && type !== 4) throw new Error('Not Expected Type')
 
 				this.type = 4
-				this.mask = parseInt(mask)
+				this.netmask = parseInt(mask)
 				this.iFirst = new IPAddress(content)
 
 				break
@@ -80,7 +80,7 @@ export const MAX_IPV4_LONG = 4294967295,
 				if (type && type !== 6) throw new Error('Not Expected Type')
 
 				this.type = 6
-				this.mask = parseInt(mask)
+				this.netmask = parseInt(mask)
 				this.iFirst = new IPAddress(content)
 
 				break
@@ -89,9 +89,9 @@ export const MAX_IPV4_LONG = 4294967295,
 	}
 
 	/**
-	 * The Mask of this Subnet
-	 * @since 1.7.0
-	*/ public mask: number
+	 * The Net Mask of the Subnet
+	 * @since 1.11.0
+	*/ public netmask: number
 
 
 	/**
@@ -121,8 +121,44 @@ export const MAX_IPV4_LONG = 4294967295,
 	 * @since 1.7.0
 	*/ public last(): IPAddress<Type> {
 		if (this.type === 4) {
+			const mask = this.mask() as Uint8Array
+
+			const net = new Uint8Array(4)
+			for (let i = 0; i < 4; i++) {
+				net[i] = 0xFF - mask[i] + this.iFirst.rawData[i]
+			}
+
+			return new IPAddress(net)
+		} else {
+			const mask = this.mask() as Uint8Array
+
+			const net = new Uint16Array(8)
+			for (let i = 0; i < 8; i++) {
+				net[i] = 0xFFFF - mask[i] + this.iFirst.rawData[i]
+			}
+
+			return new IPAddress(net)
+		}
+	}
+
+	/**
+	 * Get the Size of the Subnet
+	 * @since 1.7.0
+	*/ public size(): bigint {
+		if (this.type === 4) {
+			return BigInt(2) ** (BigInt(32) - BigInt(this.netmask))
+		} else {
+			return BigInt(2) ** (BigInt(128) - BigInt(this.netmask))
+		}
+	}
+
+	/**
+	 * Get the Subnet Mask
+	 * @since 1.11.0
+	*/ public mask(): Type extends 4 ? Type extends 6 ? Uint8Array | Uint16Array : Uint8Array : Uint16Array {
+		if (this.type === 4) {
 			const mask = new Uint8Array(4)
-			let subnet = this.mask
+			let subnet = this.netmask
 
 			for (let i = 0; i < 4; i++) {
 				if (subnet > 0) {
@@ -134,43 +170,50 @@ export const MAX_IPV4_LONG = 4294967295,
 				}
 			}
 
-			const net = new Uint8Array(4)
-			for (let i = 0; i < 4; i++) {
-				net[i] = this.iFirst.rawData[i] & mask[i]
-  		}
-
-			const ip = new Uint8Array(4)
-			for (let i = 0; i < 4; i++) {
-				ip[i] = net[i] | (~mask[i] & 0xFF)
-			}
-
-			return new IPAddress(ip)
+			return mask as any
 		} else {
-			const mask = ''.padStart(this.mask, '1').padEnd(128, '0');
+			const mask = new Uint16Array(8)
+			let subnet = this.netmask
 
-			const maskArray = new Uint16Array(8)
 			for (let i = 0; i < 8; i++) {
-				maskArray[i] = parseInt(mask.substring(i * 16, (i + 1) * 16), 2)
-			}
-	
-			const ip = new Uint16Array(8)
-			for (let i = 0; i < 8; i++) {
-				ip[i] = this.iFirst.rawData[i] | (~maskArray[i] & 0xFFFF)
+				if (subnet > 0) {
+					let bits = subnet > 16 ? 16 : subnet
+					mask[i] = ((1 << bits) - 1) << (16 - bits)
+					subnet -= bits
+				} else {
+					mask[i] = 0
+				}
 			}
 
-			return new IPAddress(ip)
+			return mask as any
 		}
 	}
 
 	/**
-	 * Get the Size of the Subnet (possible ips, for hosts subtract 2)
-	 * @since 1.7.0
-	*/ public size(): bigint {
-		if (this.type === 4) {
-			return BigInt(2) ** (BigInt(32) - BigInt(this.mask))
-		} else {
-			return BigInt(2) ** (BigInt(128) - BigInt(this.mask))
+	 * Check if the Subnet includes another IP address or subnet
+	 * @since 1.11.0
+	*/ public includes(...ips: (IPAddress<Type> | Subnet<Type>)[]): boolean {
+		const fInt = this.first().int(),
+			lInt = this.last().int()
+
+		for (const ip of ips) {
+			if (this.isIPv4() !== ip.isIPv4()) return false
+
+			if (ip instanceof Subnet) {
+				const fcInt = ip.first().int(),
+					lcInt = ip.last().int()
+
+				if (fcInt < fInt) return false
+				if (lcInt > lInt) return false
+			} else {
+				const int = ip.int()
+
+				if (int < fInt) return false
+				if (int > lInt) return false
+			}
 		}
+
+		return true
 	}
 
 	public [Symbol.iterator](): Iterator<IPAddress<Type>> {
@@ -221,7 +264,7 @@ export const MAX_IPV4_LONG = 4294967295,
 	}
 
 	protected [inspectSymbol](): string {
-		return `<Subnet v${this.type} /${this.mask} ${this.first().long()}->${this.last().long()}>`
+		return `<Subnet v${this.type} /${this.netmask} ${this.first().usual()}->${this.last().usual()}>`
 	}
 }
 
@@ -471,7 +514,7 @@ export const MAX_IPV4_LONG = 4294967295,
 			for (const segment of this.rawData) {
 				if (!segment) {
 					if (!doubleIx) {
-						ip += ip ? ':' : '::'
+						ip += ip && this.rawData[7] ? ':' : '::'
 						doubleIx = true
 					}
 
@@ -480,13 +523,6 @@ export const MAX_IPV4_LONG = 4294967295,
 
 				ip += `:${segment.toString(16)}`
 			}
-
-			/* let ip = [ ...this.rawData ]
-        .map((seg) => seg.toString(16))
-        .join(':')
-
-			ip = ip.replace(/(^|:)0+([0-9A-Fa-f]+)/g, '$1$2')
-			ip = ip.replace(/(^|:)(0(:|$)){2,}/, '::')*/
 
 			ip = ip.slice(1)
 			return ip.length === 1 ? '::' : ip
