@@ -130,7 +130,7 @@ export const MAX_IPV4_LONG = 4294967295,
 
 			return new IPAddress(net)
 		} else {
-			const mask = this.mask() as Uint8Array
+			const mask = this.mask() as Uint16Array
 
 			const net = new Uint16Array(8)
 			for (let i = 0; i < 8; i++) {
@@ -383,18 +383,12 @@ export const MAX_IPV4_LONG = 4294967295,
 					}
 
 					case 1: {
-						if (ints[0] > 0xFF) {
-							this.rawData.set([
-								(ints[0] >> 24) & 0xFF,
-								(ints[0] >> 16) & 0xFF,
-								(ints[0] >> 8) & 0xFF,
-								ints[0] & 0xFF
-							])
-
-							break
-						}
-
-						this.rawData.set(ints)
+						this.rawData.set([
+							(ints[0] >> 24) & 0xFF,
+							(ints[0] >> 16) & 0xFF,
+							(ints[0] >> 8) & 0xFF,
+							ints[0] & 0xFF
+						])
 
 						break
 					}
@@ -722,7 +716,7 @@ function checkV4(ip: string): boolean {
 		if (mask) {
 			const int = parseInt(mask)
 			if (isNaN(int)) return false
-			if (int < 0 && int > 32) return false
+			if (int < 0 || int > 32) return false
 		} else return false
 
 		const result = isIP(content, 'v4')
@@ -734,7 +728,7 @@ function checkV4(ip: string): boolean {
 		if (mask) {
 			const int = parseInt(mask)
 			if (isNaN(int)) return false
-			if (int < 0 && int > 128) return false
+			if (int < 0 || int > 128) return false
 		} else return false
 
 		return isIP(content, 'v6')

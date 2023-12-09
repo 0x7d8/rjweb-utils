@@ -1,3 +1,8 @@
+## 1.11.2
+
+- Fix Subnet validation issues
+- Change some IP Parsing
+
 ## 1.11.1
 
 - Fix some `array` issues
