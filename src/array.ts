@@ -141,7 +141,7 @@ import * as number from "./number"
 */ export function random<Arr extends any[]>(input: Arr): Arr[number] | undefined {
 	if (!input.length) return undefined
 
-  return input[number.generate(0, input.length)]
+  return input[number.generate(0, input.length - 1)]
 }
 
 /**
@@ -161,5 +161,5 @@ import * as number from "./number"
 
 	const arr = Array.from(input) as Arr
 
-  return arr.sort(() => Math.random() > Math.random() ? 1 : -1)
+  return arr.sort(() => Math.random() > Math.random() ? Math.random() > Math.random() ? 1 : 0 : -1)
 }

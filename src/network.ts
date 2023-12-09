@@ -383,7 +383,7 @@ export const MAX_IPV4_LONG = 4294967295,
 					}
 
 					case 1: {
-						if (ints[0] > 255) {
+						if (ints[0] > 0xFF) {
 							this.rawData.set([
 								(ints[0] >> 24) & 0xFF,
 								(ints[0] >> 16) & 0xFF,
@@ -633,7 +633,7 @@ function checkV4(ip: string): boolean {
 		for (const segment of segments) {
 			const int = parseInt(segment)
 			if (isNaN(int)) return false
-			if (int < 0 || int > 255) return false
+			if (int < 0 || int > 0xFF) return false
 		}
 	} else {
 		const int = parseInt(ip)
@@ -682,7 +682,7 @@ function checkV4(ip: string): boolean {
 
 				const int = parseInt(segment, 16)
 				if (isNaN(int)) return false
-				if (int < 0 || int > 65535) return false
+				if (int < 0 || int > 0xFFFF) return false
 			}
 
 			if (doubleSegments === 0 && segments.length !== 8) return false

@@ -1,3 +1,7 @@
+## 1.11.1
+
+- Fix some `array` issues
+
 ## 1.11.0
 
 - Fix some Subnet calculations
