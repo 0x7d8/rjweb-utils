@@ -1,3 +1,7 @@
+## 1.11.3
+
+- Fix Queue issues
+
 ## 1.11.2
 
 - Fix Subnet validation issues

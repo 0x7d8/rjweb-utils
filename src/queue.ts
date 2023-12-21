@@ -75,12 +75,13 @@ type Function = (...args: any[]) => any
 	*/ public add(fn: Function): this {
 		this.queue.push(fn)
 
-		if (this.lastRun + this.options.wait < Date.now()) {
+		if (this.lastRun + this.options.wait < Date.now() && !this.nextRunScheduled) {
+			this.nextRunScheduled = true
 			this.lastRun = Infinity
 			this.runNextQueueItem()
 		} else if (!this.nextRunScheduled) {
 			this.nextRunScheduled = true
-			setTimeout(() => this.runNextQueueItem(), this.lastRun + this.options.wait - Date.now())
+			setTimeout(() => this.runNextQueueItem(), Date.now() - this.lastRun + this.options.wait)
 		}
 
 		return this
@@ -105,8 +106,6 @@ type Function = (...args: any[]) => any
 	private async runNextQueueItem() {
 		const item = this.queue[0]
 		this.queue = this.queue.slice(1)
-		this.nextRunScheduled = false
-		this.lastRun = Date.now()
 
 		try {
 			const result = await Promise.resolve(item())
@@ -134,7 +133,10 @@ type Function = (...args: any[]) => any
 				this.fnWaiters = array.remove(this.fnWaiters, 'value', waiter)
 			}
 		} finally {
-			if (this.queue.length && !this.nextRunScheduled) {
+			this.nextRunScheduled = false
+			this.lastRun = Date.now()
+
+			if (this.queue.length) {
 				this.nextRunScheduled = true
 				setTimeout(() => this.runNextQueueItem(), this.options.wait)
 			}
