@@ -54,6 +54,7 @@ export const MAX_IPV4_LONG = 4294967295,
 			this.iFirst = subnet.iFirst
 			this.netmask = subnet.netmask
 			this.type = subnet.type
+			this.subnetmask = subnet.subnetmask as any
 
 			return
 		}
@@ -71,6 +72,25 @@ export const MAX_IPV4_LONG = 4294967295,
 				this.netmask = parseInt(mask)
 				this.iFirst = new IPAddress(content)
 
+				const subnetmask = new Uint8Array(4)
+				let netmask = this.netmask
+
+				for (let i = 0; i < 4; i++) {
+					if (netmask > 0) {
+						let bits = netmask > 8 ? 8 : netmask
+						subnetmask[i] = ((1 << bits) - 1) << (8 - bits)
+						netmask -= bits
+					} else {
+						subnetmask[i] = 0
+					}
+				}
+
+				this.subnetmask = subnetmask as any
+
+				for (let i = 0; i < this.iFirst.rawData.length; i++) {
+					this.iFirst.rawData[i] &= subnetmask[i]
+				}
+
 				break
 			}
 
@@ -83,6 +103,25 @@ export const MAX_IPV4_LONG = 4294967295,
 				this.netmask = parseInt(mask)
 				this.iFirst = new IPAddress(content)
 
+				const subnetmask = new Uint16Array(8)
+				let netmask = this.netmask
+
+				for (let i = 0; i < 8; i++) {
+					if (netmask > 0) {
+						let bits = netmask > 16 ? 16 : netmask
+						subnetmask[i] = ((1 << bits) - 1) << (16 - bits)
+						netmask -= bits
+					} else {
+						subnetmask[i] = 0
+					}
+				}
+
+				this.subnetmask = subnetmask as any
+
+				for (let i = 0; i < this.iFirst.rawData.length; i++) {
+					this.iFirst.rawData[i] &= subnetmask[i]
+				}
+
 				break
 			}
 		}
@@ -92,6 +131,10 @@ export const MAX_IPV4_LONG = 4294967295,
 	 * The Net Mask of the Subnet
 	 * @since 1.11.0
 	*/ public netmask: number
+	/**
+	 * The Subnet Mask of the Subnet
+	 * @since 1.11.4
+	*/ public subnetmask: Type extends 4 ? Type extends 6 ? Uint8Array | Uint16Array : Uint8Array : Uint16Array
 
 
 	/**
@@ -121,7 +164,7 @@ export const MAX_IPV4_LONG = 4294967295,
 	 * @since 1.7.0
 	*/ public last(): IPAddress<Type> {
 		if (this.type === 4) {
-			const mask = this.mask() as Uint8Array
+			const mask = this.subnetmask as Uint8Array
 
 			const net = new Uint8Array(4)
 			for (let i = 0; i < 4; i++) {
@@ -130,7 +173,7 @@ export const MAX_IPV4_LONG = 4294967295,
 
 			return new IPAddress(net)
 		} else {
-			const mask = this.mask() as Uint16Array
+			const mask = this.subnetmask as Uint16Array
 
 			const net = new Uint16Array(8)
 			for (let i = 0; i < 8; i++) {
@@ -149,43 +192,6 @@ export const MAX_IPV4_LONG = 4294967295,
 			return BigInt(2) ** (BigInt(32) - BigInt(this.netmask))
 		} else {
 			return BigInt(2) ** (BigInt(128) - BigInt(this.netmask))
-		}
-	}
-
-	/**
-	 * Get the Subnet Mask
-	 * @since 1.11.0
-	*/ public mask(): Type extends 4 ? Type extends 6 ? Uint8Array | Uint16Array : Uint8Array : Uint16Array {
-		if (this.type === 4) {
-			const mask = new Uint8Array(4)
-			let subnet = this.netmask
-
-			for (let i = 0; i < 4; i++) {
-				if (subnet > 0) {
-					let bits = subnet > 8 ? 8 : subnet
-					mask[i] = ((1 << bits) - 1) << (8 - bits)
-					subnet -= bits
-				} else {
-					mask[i] = 0
-				}
-			}
-
-			return mask as any
-		} else {
-			const mask = new Uint16Array(8)
-			let subnet = this.netmask
-
-			for (let i = 0; i < 8; i++) {
-				if (subnet > 0) {
-					let bits = subnet > 16 ? 16 : subnet
-					mask[i] = ((1 << bits) - 1) << (16 - bits)
-					subnet -= bits
-				} else {
-					mask[i] = 0
-				}
-			}
-
-			return mask as any
 		}
 	}
 

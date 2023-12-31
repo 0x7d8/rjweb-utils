@@ -1,3 +1,8 @@
+## 1.11.4
+
+- Make subnet parser fix the initial ip
+- Rename `<Subnet>.mask` to `<Subnet>.subnetmask`
+
 ## 1.11.3
 
 - Fix Queue issues
