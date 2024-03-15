@@ -16,6 +16,8 @@ export { default as size } from "./size"
 import { version } from "./pckg.json"
 export const Version: string = version
 
+export type ArrayOrNot<Type> = Type | Type[]
+
 export type DeepRequired<Type> = Type extends {}
 		? Type extends Map<any, any>
 			? Required<Type>

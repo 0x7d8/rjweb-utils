@@ -2,7 +2,7 @@ import * as fs from "fs"
 import * as path from "path"
 import * as rl from "readline"
 import * as crypto from "crypto"
-import { as, stream as _stream, string } from "."
+import { as, stream as _stream, string, ArrayOrNot } from "."
 
 /**
  * Get Files from a folder
@@ -161,6 +161,8 @@ import { as, stream as _stream, string } from "."
 	}
 }
 
+type ObjectValues<Type> = Type[keyof Type]
+
 /**
  * Hash a File
  * @example
@@ -170,12 +172,12 @@ import { as, stream as _stream, string } from "."
  * await filesystem.hash('./doc.txt', { algorithm: 'sha256', salt: '123', output: 'hex' }) // 91be40b8a3959b7821be224d8ce5ad09874fc84dcacd9fed77bf07000141e15a
  * ```
  * @since 1.12.0
-*/ export async function hash<Options extends {
+*/ export async function hash<const Options extends {
 	/**
 	 * The Algorithm to use
 	 * @default "sha256"
 	 * @since 1.12.0
-	*/ algorithm?: string
+	*/ algorithm?: ArrayOrNot<string>
 	/**
 	 * The Salt to add
 	 * @since 1.12.0
@@ -185,7 +187,10 @@ import { as, stream as _stream, string } from "."
 	 * @default "hex"
 	 * @since 1.12.0
 	*/ output?: crypto.BinaryToTextEncoding | 'buffer'
-}>(file: fs.PathLike, options?: Options): Promise<Options['output'] extends 'buffer' ? Buffer : string> {
+}>(file: fs.PathLike, options?: Options): Promise<Options['algorithm'] extends Array<any>
+	? { [Key in Options['algorithm'][number]]: Options['output'] extends 'buffer' ? Buffer : string }
+	: Options['output'] extends 'buffer' ? Buffer : string
+> {
 	const stream = fs.createReadStream(file)
 
 	const pOptions = {
@@ -194,11 +199,15 @@ import { as, stream as _stream, string } from "."
 		output: options?.output ?? 'hex'
 	}
 
-	const hash = pOptions.salt ? crypto.createHmac(pOptions.algorithm, pOptions.salt) : crypto.createHash(pOptions.algorithm)
+	pOptions.algorithm = Array.isArray(pOptions.algorithm) ? pOptions.algorithm : [pOptions.algorithm]
+
+	const hashes: Record<string, crypto.Hash | crypto.Hmac> = Object.fromEntries(pOptions.algorithm.map((a) => [a, pOptions.salt ? crypto.createHmac(a, pOptions.salt) : crypto.createHash(a)]))
 
 	await new Promise((resolve, reject) => {
 		stream.on('data', (chunk) => {
-			hash.update(chunk)
+			for (const hash of Object.values(hashes)) {
+				hash.update(chunk)
+			}
 		})
 
 		stream.on('end', () => {
@@ -210,10 +219,9 @@ import { as, stream as _stream, string } from "."
 		})
 	})
 
-	let out: string | Buffer
-
-	if (pOptions.output === 'buffer') out = hash.digest()
-	else out = hash.digest(pOptions.output)
-
-	return out as any
+	if (Array.isArray(options?.algorithm)) {
+		return Object.fromEntries(pOptions.algorithm.map((a) => [a, pOptions.output === 'buffer' ? hashes[a].digest() : hashes[a].digest(pOptions.output)])) as never
+	} else {
+		return pOptions.output === 'buffer' ? hashes[pOptions.algorithm[0]].digest() as never : hashes[pOptions.algorithm[0]].digest(pOptions.output) as never
+	}
 }

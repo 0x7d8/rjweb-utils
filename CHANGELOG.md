@@ -1,3 +1,7 @@
+## 1.12.1
+
+- Allow creating multiple different hashes for the same input in a single call
+
 ## 1.12.0
 
 - Add `filesystem.hash`

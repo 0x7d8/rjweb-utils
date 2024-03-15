@@ -1,4 +1,5 @@
 import * as crypto from "crypto"
+import { ArrayOrNot } from "src"
 
 let randomIndex: number
 let randomBytes: Buffer
@@ -81,7 +82,7 @@ const _string = (options: Record<string, any>) => {
 	 * The Algorithm to use
 	 * @default "sha256"
 	 * @since 1.0.0
-	*/ algorithm?: string
+	*/ algorithm?: ArrayOrNot<string>
 	/**
 	 * The Salt to add
 	 * @since 1.0.0
@@ -91,21 +92,24 @@ const _string = (options: Record<string, any>) => {
 	 * @default "hex"
 	 * @since 1.0.0
 	*/ output?: crypto.BinaryToTextEncoding | 'buffer'
-}>(input: string, options?: Options): Options['output'] extends 'buffer' ? Buffer : string {
+}>(input: string, options?: Options): Options['algorithm'] extends Array<any>
+? { [Key in Options['algorithm'][number]]: Options['output'] extends 'buffer' ? Buffer : string }
+: Options['output'] extends 'buffer' ? Buffer : string {
 	const pOptions = {
 		algorithm: options?.algorithm ?? 'sha256',
 		salt: options?.salt,
 		output: options?.output ?? 'hex'
 	}
 
-	const hash = pOptions.salt ? crypto.createHmac(pOptions.algorithm, pOptions.salt).update(input) : crypto.createHash(pOptions.algorithm).update(input)
+	pOptions.algorithm = Array.isArray(pOptions.algorithm) ? pOptions.algorithm : [pOptions.algorithm]
 
-	let out: string | Buffer
+	const hashes: Record<string, crypto.Hash | crypto.Hmac> = Object.fromEntries(pOptions.algorithm.map((a) => [a, pOptions.salt ? crypto.createHmac(a, pOptions.salt).update(input) : crypto.createHash(a).update(input)]))
 
-	if (pOptions.output === 'buffer') out = hash.digest()
-	else out = hash.digest(pOptions.output)
-
-	return out as any
+	if (Array.isArray(options?.algorithm)) {
+		return Object.fromEntries(pOptions.algorithm.map((a) => [a, pOptions.output === 'buffer' ? hashes[a].digest() : hashes[a].digest(pOptions.output)])) as never
+	} else {
+		return pOptions.output === 'buffer' ? hashes[pOptions.algorithm[0]].digest() as never : hashes[pOptions.algorithm[0]].digest(pOptions.output) as never
+	}
 }
 
 /**
