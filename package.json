@@ -1,6 +1,6 @@
 {
   "name": "@rjweb/utils",
-  "version": "1.11.4",
+  "version": "1.12.0",
   "description": "Easy and Lightweight Utilities",
   "module": "lib/esm/index.js",
   "main": "lib/cjs/index.js",
@@ -36,11 +36,11 @@
   },
   "homepage": "https://github.com/0x7d8/rjweb-utils#readme",
   "devDependencies": {
-    "@rjweb/utils": "link:.",
-    "@types/node": "^20.0.0",
-    "esbuild": "^0.17.2",
-    "typedoc": "^0.25.1",
-    "typescript": "^5.1.0"
+    "@rjweb/utils": "link:",
+    "@types/node": "^20.11.28",
+    "esbuild": "^0.20.2",
+    "typedoc": "^0.25.12",
+    "typescript": "^5.4.2"
   },
   "dependencies": {
     "ts-arithmetic": "^0.1.1"

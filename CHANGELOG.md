@@ -1,3 +1,9 @@
+## 1.12.0
+
+- Add `filesystem.hash`
+- Allow `filesystem.env` to be sync
+- Update JSDocs
+
 ## 1.11.4
 
 - Make subnet parser fix the initial ip

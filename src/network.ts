@@ -35,12 +35,12 @@ export const MAX_IPV4_LONG = 4294967295,
 	 * ```
 	 * import { network } from "@rjweb/utils"
 	 * 
-	 * const subnet = new network.Subnet('127.1/32')
+	 * const subnet = new network.Subnet('127.0.0.1/24')
 	 * subnet.type // 4
 	 * 
-	 * subnet.size() // 1n
-	 * subnet.first() // <IPAddress>
-	 * subnet.last() // <IPAddress>
+	 * subnet.size() // 255n
+	 * subnet.first() // <IPAddress v4 127.0.0.0>
+	 * subnet.last() // <IPAddress v4 127.0.0.255>
 	 * 
 	 * for (const ip of subnet) {
 	 *   console.log(ip.long())

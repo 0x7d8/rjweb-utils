@@ -1,6 +1,7 @@
 import * as fs from "fs"
 import * as path from "path"
 import * as rl from "readline"
+import * as crypto from "crypto"
 import { as, stream as _stream, string } from "."
 
 /**
@@ -140,8 +141,79 @@ import { as, stream as _stream, string } from "."
  * filesystem.env('./invalid-env') // {}
  * ```
  * @since 1.10.4
-*/ export async function env(file: fs.PathLike): Promise<Record<string, string>> {
-	const content = await fs.promises.readFile(file, 'utf8')
+*/ export function env<Options extends {
+	/**
+	 * Whether to use async fs
+	 * @default true
+	 * @since 1.12.0
+	*/ async?: boolean
+}>(file: fs.PathLike, options?: Options): Options['async'] extends false ? Record<string, string> : Promise<Record<string, string>> {
+	if (options?.async ?? true) {
+		return new Promise(async(resolve) => {
+			const content = await fs.promises.readFile(file, 'utf8')
 
-	return string.env(content)
+			return resolve(string.env(content))
+		}) as any
+	} else {
+		const content = fs.readFileSync(file, 'utf8')
+
+		return string.env(content) as any
+	}
+}
+
+/**
+ * Hash a File
+ * @example
+ * ```
+ * import { filesystem } from "@rjweb/utils"
+ * 
+ * await filesystem.hash('./doc.txt', { algorithm: 'sha256', salt: '123', output: 'hex' }) // 91be40b8a3959b7821be224d8ce5ad09874fc84dcacd9fed77bf07000141e15a
+ * ```
+ * @since 1.12.0
+*/ export async function hash<Options extends {
+	/**
+	 * The Algorithm to use
+	 * @default "sha256"
+	 * @since 1.12.0
+	*/ algorithm?: string
+	/**
+	 * The Salt to add
+	 * @since 1.12.0
+	*/ salt?: string
+	/**
+	 * The Output type to emit
+	 * @default "hex"
+	 * @since 1.12.0
+	*/ output?: crypto.BinaryToTextEncoding | 'buffer'
+}>(file: fs.PathLike, options?: Options): Promise<Options['output'] extends 'buffer' ? Buffer : string> {
+	const stream = fs.createReadStream(file)
+
+	const pOptions = {
+		algorithm: options?.algorithm ?? 'sha256',
+		salt: options?.salt,
+		output: options?.output ?? 'hex'
+	}
+
+	const hash = pOptions.salt ? crypto.createHmac(pOptions.algorithm, pOptions.salt) : crypto.createHash(pOptions.algorithm)
+
+	await new Promise((resolve, reject) => {
+		stream.on('data', (chunk) => {
+			hash.update(chunk)
+		})
+
+		stream.on('end', () => {
+			resolve(null)
+		})
+
+		stream.on('error', (err) => {
+			reject(err)
+		})
+	})
+
+	let out: string | Buffer
+
+	if (pOptions.output === 'buffer') out = hash.digest()
+	else out = hash.digest(pOptions.output)
+
+	return out as any
 }
