@@ -1,3 +1,7 @@
+## 1.12.2
+
+- Fix RangeErrors when using `network.download`
+
 ## 1.12.1
 
 - Allow creating multiple different hashes for the same input in a single call

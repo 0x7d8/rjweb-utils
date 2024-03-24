@@ -784,7 +784,7 @@ function checkV4(ip: string): boolean {
 
 	try {
 		for await (const chunk of response.body) {
-			writeStream.write(chunk)
+			await new Promise<void>((resolve) => writeStream.write(chunk, () => resolve()))
 		}
 
 		return performance.now() - startTime
