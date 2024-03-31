@@ -161,8 +161,6 @@ import { as, stream as _stream, string, ArrayOrNot } from "."
 	}
 }
 
-type ObjectValues<Type> = Type[keyof Type]
-
 /**
  * Hash a File
  * @example
@@ -223,5 +221,74 @@ type ObjectValues<Type> = Type[keyof Type]
 		return Object.fromEntries(pOptions.algorithm.map((a) => [a, pOptions.output === 'buffer' ? hashes[a].digest() : hashes[a].digest(pOptions.output)])) as never
 	} else {
 		return pOptions.output === 'buffer' ? hashes[pOptions.algorithm[0]].digest() as never : hashes[pOptions.algorithm[0]].digest(pOptions.output) as never
+	}
+}
+
+/**
+ * Walk a Directory
+ * @example
+ * ```
+ * import { filesystem } from "@rjweb/utils"
+ * import path from "path"
+ * 
+ * for await (const dirent of filesystem.walk('./node_modules', { async: true, recursive: true })) {
+ *   const spaces = path.relative('./node_modules', dirent.path).split(path.sep).length - 1
+ * 
+ *   console.log(' '.repeat(spaces), dirent.name)
+ * }
+ * ```
+ * @since 1.12.3
+*/ export function walk<Options extends {
+	/**
+	 * Whether to use async fs
+	 * @default false
+	 * @since 1.12.3
+	*/ async?: boolean
+	/**
+	 * Whether to walk the directory recursively
+	 * @default false
+	 * @since 1.12.3
+	 */ recursive?: boolean
+}>(folder: string, options?: Options): Options['async'] extends true ? AsyncIterable<fs.Dirent> : Iterable<fs.Dirent> {
+	const cleanPath = path.resolve(folder)
+
+	if (options?.async) {
+		return {
+			[Symbol.asyncIterator]: async function* () {
+				const dir = await fs.promises.opendir(cleanPath)
+
+				while (true) {
+					const dirent = await dir.read()
+					if (!dirent) break
+
+					yield dirent
+
+					if (options?.recursive && dirent.isDirectory()) {
+						yield* walk(path.join(folder, dirent.name), options) as any
+					}
+				}
+
+				await dir.close()
+			}
+		} as never
+	} else {
+		return {
+			[Symbol.iterator]: function* () {
+				const dir = fs.opendirSync(cleanPath)
+
+				while (true) {
+					const dirent = dir.readSync()
+					if (!dirent) break
+
+					yield dirent
+
+					if (options?.recursive && dirent.isDirectory()) {
+						yield* walk(path.join(folder, dirent.name), options) as any
+					}
+				}
+
+				dir.closeSync()
+			}
+		} as never
 	}
 }

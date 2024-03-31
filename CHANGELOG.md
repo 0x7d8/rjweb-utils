@@ -1,3 +1,7 @@
+## 1.12.3
+
+- Add `filesystem.walk`
+
 ## 1.12.2
 
 - Fix RangeErrors when using `network.download`
