@@ -1,7 +1,7 @@
 <h1 align="center">Welcome to @rjweb/utils 👋</h1>
 <center>
 
-  [<img src="https://img.rjansen.de/rjweb/types.svg" height="75px" style="margin-top:0px;margin-left:-15px;">](https://utils.rjweb.dev)
+  [<img src="https://cdn.rjns.dev/rjweb/types.svg" height="75px" style="margin-top:0px;margin-left:-15px;">](https://utils.rjweb.dev)
 
   Easy and Lightweight Utilities
 </center>

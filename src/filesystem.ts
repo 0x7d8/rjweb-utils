@@ -261,6 +261,8 @@ import { as, stream as _stream, string, ArrayOrNot } from "."
 					const dirent = await dir.read()
 					if (!dirent) break
 
+					dirent.path = path.join(folder, dirent.name)
+
 					yield dirent
 
 					if (options?.recursive && dirent.isDirectory()) {

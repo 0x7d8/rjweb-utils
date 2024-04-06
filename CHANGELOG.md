@@ -1,3 +1,7 @@
+## 1.12.4
+
+- Set `filesystem.walk` dirent path manually
+
 ## 1.12.3
 
 - Add `filesystem.walk`
