@@ -1,43 +1,49 @@
-<h1 align="center">Welcome to @rjweb/utils 👋</h1>
-<center>
+# Welcome to `@rjweb/utils`
 
-  [<img src="https://cdn.rjns.dev/rjweb/types.svg" height="75px" style="margin-top:0px;margin-left:-15px;">](https://utils.rjweb.dev)
+<img style="float: right;" alt="RJWEB Icon" height="104" src="https://cdn.rjns.dev/rjweb/icon.png">
 
-  Easy and Lightweight Utilities
-</center>
+Easy and Lightweight Utilities
 
-### 🏠 [Homepage](https://github.com/0x7d8/rjweb-utils#readme)
+🏠 [Homepage](https://github.com/0x7d8/rjweb-utils#readme)
+🔍 [Documentation](https://utils.rjweb.dev)
+
+## Disclaimer
+
+This Package is intended to be used in the backend, however with polyfills (or even without) it should work fine in vite or webpack.
+
+- ✅ ESM
+- ✅ CJS
+- ✅ Typescript
 
 ## Install
 
 ```sh
-# NPM
 npm install @rjweb/utils
-
-# Yarn
 yarn add @rjweb/utils
-
-# pNPM
 pnpm add @rjweb/utils
+bun install @rjweb/utils
 ```
 
 ## Example Usage
 
-All Utilities and example are available in the [typedocs](https://utils.rjweb.dev).
+All Utilities and example are available in the [Documentation](https://utils.rjweb.dev).
 
 ## Author
 
 👤 **0x7d8**
+🌐 [Website](https://rjansen.dev)
+⭐ [GitHub](https://github.com/0x7d8)
 
 ## 🤝 Contributing
 
-Contributions, issues and feature requests are welcome!<br />Feel free to check [issues page](https://github.com/0x7d8/rjweb-utils/issues). 
+Contributions, issues and feature requests are welcome!
+Feel free to check [issues page](https://github.com/0x7d8/rjweb-utils/issues).
 
 ## Show your support
 
-Give a ⭐️ if this project helped you!
+Give a ⭐️ if this project helps you!
 
 ## 📝 License
 
-Copyright © 2023 [0x7d8](https://github.com/0x7d8).<br />
+Copyright © 2024 [0x7d8](https://github.com/0x7d8).
 This project is MIT licensed.

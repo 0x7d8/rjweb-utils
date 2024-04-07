@@ -1,3 +1,9 @@
+## 1.12.6
+
+- Redesign Typedocs
+- Add `PromiseOrNot<T>`
+- Improve Readme
+
 ## 1.12.5
 
 - Bun bypass

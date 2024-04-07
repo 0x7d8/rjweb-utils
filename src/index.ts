@@ -17,6 +17,7 @@ import { version } from "./pckg.json"
 export const Version: string = version
 
 export type ArrayOrNot<Type> = Type | Type[]
+export type PromiseOrNot<Type> = Type | Promise<Type>
 
 export type DeepRequired<Type> = Type extends {}
 		? Type extends Map<any, any>
