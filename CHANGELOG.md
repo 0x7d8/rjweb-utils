@@ -1,3 +1,7 @@
+## 1.12.5
+
+- Bun bypass
+
 ## 1.12.4
 
 - Set `filesystem.walk` dirent path manually
