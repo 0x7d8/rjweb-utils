@@ -1,3 +1,8 @@
+## 1.12.7
+
+- Add `object.deepMerge`
+- Add `UnionToIntersection<T>`
+
 ## 1.12.6
 
 - Redesign Typedocs

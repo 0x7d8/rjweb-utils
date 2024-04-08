@@ -1,11 +1,14 @@
 # Welcome to `@rjweb/utils`
 
-<img style="float: right;" alt="RJWEB Icon" height="104" src="https://cdn.rjns.dev/rjweb/icon.png">
+<img style="float: right;" alt="RJWEB Icon" height="104" src="https://cdn.rjns.dev/rjweb/icon.svg">
 
 Easy and Lightweight Utilities
 
 🏠 [Homepage](https://github.com/0x7d8/rjweb-utils#readme)
 🔍 [Documentation](https://utils.rjweb.dev)
+
+![lines of code](https://tokei.rs/b1/github/0x7d8/rjweb-utils?category=code)
+![files](https://tokei.rs/b1/github/0x7d8/rjweb-utils?category=files)
 
 ## Disclaimer
 

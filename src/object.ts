@@ -1,4 +1,4 @@
-import { DeepRequired } from "."
+import { DeepRequired, UnionToIntersection } from "."
 
 /**
  * Deep Parse an Object
@@ -60,4 +60,32 @@ import { DeepRequired } from "."
 	} catch {
 		return false
 	}
+}
+
+/**
+ * Deep Merge Objects
+ * @example
+ * ```
+ * import { object } from "@rjweb/utils"
+ * 
+ * object.deepMerge({ ok: true, e: { g: 0 }, items: ['hi'] }, { ok: false, e: 213, items: ['ok'] }) // { ok: false, e: 213, items: ['hi', 'ok'] }
+ * object.deepMerge({ ok: true, e: 'hello', { ok: false, e: { g: 1 } }, { ok: true, e: { g: 2 } }) // { ok: true, e: { g: 2 } }
+ * ```
+ * @since 1.12.7
+*/ export function deepMerge<Obj extends Record<any, any>[]>(...objects: Obj): UnionToIntersection<Obj[number]> {
+	const isObject = (item: any) => typeof item === 'object' && !Array.isArray(item)
+
+	return objects.reduce((acc, obj) => {
+		Object.keys(obj).forEach((key) => {
+			if (isObject(obj[key]) && isObject(acc[key])) {
+				acc[key] = deepMerge(acc[key], obj[key])
+			} else if (Array.isArray(obj[key]) && Array.isArray(acc[key])) {
+				acc[key].push(...obj[key])
+			} else {
+				acc[key] = obj[key]
+			}
+		})
+
+		return acc
+	}, {} as Obj[number]) as never
 }

@@ -19,6 +19,9 @@ export const Version: string = version
 export type ArrayOrNot<Type> = Type | Type[]
 export type PromiseOrNot<Type> = Type | Promise<Type>
 
+export type UnionToIntersection<U> =
+  (U extends any ? (k: U) => void : never) extends ((k: infer I) => void) ? I : never  
+
 export type DeepRequired<Type> = Type extends {}
 		? Type extends Map<any, any>
 			? Required<Type>

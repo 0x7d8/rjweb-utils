@@ -20,11 +20,11 @@ devDependencies:
     specifier: ^0.20.2
     version: 0.20.2
   typedoc:
-    specifier: ^0.25.12
-    version: 0.25.12(typescript@5.4.4)
+    specifier: ^0.25.13
+    version: 0.25.13(typescript@5.4.4)
   typedoc-material-theme:
     specifier: ^1.0.2
-    version: 1.0.2(typedoc@0.25.12)
+    version: 1.0.2(typedoc@0.25.13)
   typescript:
     specifier: ^5.4.4
     version: 5.4.4
@@ -327,18 +327,18 @@ packages:
     resolution: {integrity: sha512-3VqgsRgzaYfj+zKWn+7O66ifHwbOOnT2BoOrHwdEUBz7az0DetoZOS20+juNJh1klgzvWEi2Qxden41pomOUAQ==}
     dev: false
 
-  /typedoc-material-theme@1.0.2(typedoc@0.25.12):
+  /typedoc-material-theme@1.0.2(typedoc@0.25.13):
     resolution: {integrity: sha512-/nH/twYeHrnz5sZaaXzYJ85EOgKqnbl1ivzBKmuEAga1dBsARttwQUTPKAT7XrCPD+rRcoqxuCOdXZ6EGiqRQA==}
     engines: {node: '>=18.0.0', npm: '>=8.6.0'}
     peerDependencies:
       typedoc: ^0.25.3
     dependencies:
       '@material/material-color-utilities': 0.2.7
-      typedoc: 0.25.12(typescript@5.4.4)
+      typedoc: 0.25.13(typescript@5.4.4)
     dev: true
 
-  /typedoc@0.25.12(typescript@5.4.4):
-    resolution: {integrity: sha512-F+qhkK2VoTweDXd1c42GS/By2DvI2uDF4/EpG424dTexSHdtCH52C6IcAvMA6jR3DzAWZjHpUOW+E02kyPNUNw==}
+  /typedoc@0.25.13(typescript@5.4.4):
+    resolution: {integrity: sha512-pQqiwiJ+Z4pigfOnnysObszLiU3mVLWAExSPf+Mu06G/qsc3wzbuM56SZQvONhHLncLUhYzOVkjFFpFfL5AzhQ==}
     engines: {node: '>= 16'}
     hasBin: true
     peerDependencies:
