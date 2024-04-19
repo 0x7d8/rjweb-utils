@@ -76,6 +76,17 @@ class Time<Amount extends number> {
 	*/ public w(): Multiply<Multiply<Multiply<Multiply<Multiply<Amount, 1000>, 60>, 60>, 24>, 7> {
 		return this.amount * 1000 * 60 * 60 * 24 * 7 as never
 	}
+
+	/**
+	 * Use the provided amount as years
+	 * @example
+	 * ```
+	 * time(10).y() // 31536000000000
+	 * ```
+	 * @since 1.12.9
+	*/ public y(): Multiply<Multiply<Multiply<Multiply<Multiply<Amount, 1000>, 60>, 60>, 24>, 365> {
+		return this.amount * 1000 * 60 * 60 * 24 * 365 as never
+	}
 }
 
 /**
@@ -149,23 +160,21 @@ class Time<Amount extends number> {
 		const parsed = Date.parse(input)
 		if (!isNaN(parsed)) return parsed - Date.now()
 
-		const matches = input.match(/(-?\d+)\s*([a-zA-Z]+)/g)
+		const matches = input.match(/(-?\d+(?:\.\d+)?)\s*([a-zA-Z]+)/g)
 		if (!matches) return null
 
 		return matches.reduce((acc, match) => {
-			const [ _, amount, unit ] = match.match(/(-?\d+)\s*([a-zA-Z]+)/)!
+			const [ _, amount, unit ] = match.match(/(-?\d+(?:\.\d+)?)\s*([a-zA-Z]+)/)!
 
-			const alias = Object.entries(timeAliases).find(([ _, aliases ]) => aliases.includes(unit.toLowerCase()))
+			const alias = Object.keys(timeAliases).find((key) => timeAliases[key as keyof Time<number>].includes(unit.toLowerCase())) as keyof Time<number> | undefined
 			if (!alias) return acc
 
-			const [ key ] = alias
-
-			return acc + new Time(parseInt(amount))[key as keyof Time<number>]()
+			return acc + new Time(parseFloat(amount))[alias]()
 		}, 0)
 	}
 })
 
-const timeAliases: Record<string, string[]> = Object.freeze({
+const timeAliases: Record<keyof Time<number>, string[]> = Object.freeze({
 	ms: ['ms', 'millisecond', 'milliseconds'],
 	s: ['s', 'sec', 'secs', 'second', 'seconds'],
 	m: ['m', 'min', 'mins', 'minute', 'minutes'],

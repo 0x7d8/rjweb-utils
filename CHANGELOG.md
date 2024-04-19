@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.12.9
+
+- Allow floating point numbers in `time.parse`
+
 ## 1.12.8
 
 - Add `time.parse`
