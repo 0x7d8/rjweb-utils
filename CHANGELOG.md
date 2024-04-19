@@ -1,3 +1,10 @@
+# Changelog
+
+## 1.12.8
+
+- Add `time.parse`
+- Fix a broken JSDoc
+
 ## 1.12.7
 
 - Add `object.deepMerge`

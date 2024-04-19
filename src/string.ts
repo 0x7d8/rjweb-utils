@@ -497,7 +497,7 @@ class VariableParserArgBuilder<Args extends Record<string, boolean> = {}> {
  * 
  * await parser.validate('Hi', { something: 1 }) // { valid: true }
  * await parser.validate('Hi {{round}}', { something: 1 }) // { valid: false, error: ['Missing Required Arguments to `round`'] }
- * await parser.parse('I have {{round(10.32323463246, 4)}}{{echo(€\\, Sir.)}}', { something: 1 }) // 'I have 10.32€, Sir.'
+ * await parser.parse('I have {{round(10.32323463246, 4)}}{{echo(€\\, Sir.)}}', { something: 1 }) // 'I have 10.3232€, Sir.'
  * ```
  * @since 1.8.3
 */ export class VariableParser<Data = undefined> {

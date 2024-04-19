@@ -127,5 +127,50 @@ class Time<Amount extends number> {
 			return resolve([ performance.now() - startTime, asyncRes ])
 		}) as any
 		else return [ performance.now() - startTime, res ] as any
+	},
+
+	/**
+	 * Parse a time string into milliseconds
+	 * @example
+	 * ```
+	 * import { time } from "@rjweb/utils"
+	 * 
+	 * time.parse('2s') // 2000
+	 * time.parse('2m 30 s') // 150000
+	 * time.parse('2h 30minute 30s') // 9030000
+	 * time.parse('2day 3minute 30h 30s 4 ms') // 183810004
+	 * time.parse('Jan 2 2022') // <will depend on current date>
+	 * time.parse('1w -1d') // 518400000
+	 * time.parse('1d -12h') // 43200000
+	 * time.parse('hi') // null
+	 * ```
+	 * @since 1.12.8
+	*/ parse(input: string): number | null {
+		const parsed = Date.parse(input)
+		if (!isNaN(parsed)) return parsed - Date.now()
+
+		const matches = input.match(/(-?\d+)\s*([a-zA-Z]+)/g)
+		if (!matches) return null
+
+		return matches.reduce((acc, match) => {
+			const [ _, amount, unit ] = match.match(/(-?\d+)\s*([a-zA-Z]+)/)!
+
+			const alias = Object.entries(timeAliases).find(([ _, aliases ]) => aliases.includes(unit.toLowerCase()))
+			if (!alias) return acc
+
+			const [ key ] = alias
+
+			return acc + new Time(parseInt(amount))[key as keyof Time<number>]()
+		}, 0)
 	}
+})
+
+const timeAliases: Record<string, string[]> = Object.freeze({
+	ms: ['ms', 'millisecond', 'milliseconds'],
+	s: ['s', 'sec', 'secs', 'second', 'seconds'],
+	m: ['m', 'min', 'mins', 'minute', 'minutes'],
+	h: ['h', 'hr', 'hour', 'hours'],
+	d: ['d', 'day', 'days'],
+	w: ['w', 'week', 'weeks'],
+	y: ['y', 'year', 'years']
 })
