@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.12.10
+
+- Add `string.similarity`
+- Add `number.generateCrypto`
+- Add `number.clamp`
+- Add dns & reverse dns over https
+
 ## 1.12.9
 
 - Allow floating point numbers in `time.parse`

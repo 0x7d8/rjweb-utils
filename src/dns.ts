@@ -1,6 +1,33 @@
 import { IPAddress, isIP } from "./network"
 import * as dns from "dns"
 
+type HttpDNSResponse = {
+	Status: number
+	TC: boolean
+	RD: boolean
+	RA: boolean
+	AD: boolean
+	CD: boolean
+	Question: {
+		name: string
+		type: number
+	}
+	Answer: {
+		name: string
+		type: number
+		TTL: number
+		data: string
+	}[]
+	Authority: [
+		{
+			name: string
+			type: number
+			TTL: number
+			data: string
+		}
+	]
+}
+
 /**
  * Resolve a Host to an IP
  * @example
@@ -13,19 +40,32 @@ import * as dns from "dns"
  * await dns.resolve('google.cdom', 'v6') // null
  * ```
  * @since 1.8.0
-*/ export async function resolve(host: string, prefer: 'v4' | 'v6' = 'v4'): Promise<IPAddress | null> {
+*/ export async function resolve(host: string, prefer: 'v4' | 'v6' = 'v4', mode: 'dns' | 'fetch' = 'dns'): Promise<IPAddress | null> {
 	if (isIP(host)) return new IPAddress(host)
 
-	const [ v4, v6 ] = await Promise.allSettled([
-		dns.promises.resolve4(host),
-		dns.promises.resolve6(host)
-	])
+	if (mode === 'dns') {
+		const [ v4, v6 ] = await Promise.allSettled([
+			dns.promises.resolve4(host),
+			dns.promises.resolve6(host)
+		])
 
-	if (v4.status === 'rejected' && v6.status === 'rejected') return null
+		if (v4.status === 'rejected' && v6.status === 'rejected') return null
 
-	if (prefer === 'v4' && v4.status === 'fulfilled') return new IPAddress(v4.value[0])
-	else if (prefer === 'v6' && v6.status === 'fulfilled') return new IPAddress(v6.value[0])
-	else return new IPAddress(v4.status === 'fulfilled' ? v4.value[0] : v6.status === 'fulfilled' ? v6.value[0] : '127.0.0.1')
+		if (prefer === 'v4' && v4.status === 'fulfilled') return new IPAddress(v4.value[0])
+		else if (prefer === 'v6' && v6.status === 'fulfilled') return new IPAddress(v6.value[0])
+		else return new IPAddress(v4.status === 'fulfilled' ? v4.value[0] : v6.status === 'fulfilled' ? v6.value[0] : '127.0.0.1')
+	} else {
+		const [ v4, v6 ] = await Promise.allSettled([
+			fetch(`https://cloudflare-dns.com/dns-query?name=${host}&type=A`, { headers: { accept: 'application/dns-json' } }).then(res => res.json() as Promise<HttpDNSResponse>),
+			fetch(`https://cloudflare-dns.com/dns-query?name=${host}&type=AAAA`, { headers: { accept: 'application/dns-json' } }).then(res => res.json() as Promise<HttpDNSResponse>)
+		])
+
+		if (v4.status === 'rejected' && v6.status === 'rejected') return null
+
+		if (prefer === 'v4' && v4.status === 'fulfilled') return new IPAddress(v4.value.Answer[0].data)
+		else if (prefer === 'v6' && v6.status === 'fulfilled') return new IPAddress(v6.value.Answer[0].data)
+		else return new IPAddress(v4.status === 'fulfilled' ? v4.value.Answer[0].data : v6.status === 'fulfilled' ? v6.value.Answer[0].data : '127.0.0.1')
+	}
 }
 
 /**
@@ -44,11 +84,23 @@ import * as dns from "dns"
  * await dns.reverse(googleV6) // 'fra16s53-in-x0e.1e100.net'
  * ```
  * @since 1.10.5
-*/ export async function reverse(ip: IPAddress): Promise<string | null> {
+*/ export async function reverse(ip: IPAddress, mode: 'dns' | 'fetch'): Promise<string | null> {
 	try {
-		const result = await dns.promises.reverse(ip.long())
+		if (mode === 'dns') {
+			const result = await dns.promises.reverse(ip.long())
 
-		return result[0]
+			return result[0]
+		} else {
+			if (ip.isIPv4()) {
+				const result = await fetch(`https://cloudflare-dns.com/dns-query?name=${ip.long().split('.').reverse().join('.')}.in-addr.arpa&type=PTR`, { headers: { accept: 'application/dns-json' } }).then(res => res.json() as Promise<HttpDNSResponse>)
+
+				return result.Answer[0].data
+			} else {
+				const result = await fetch(`https://cloudflare-dns.com/dns-query?name=${ip.long().split(':').reverse().flatMap((x) => x.split('').reverse().join('.')).join('.')}.ip6.arpa&type=PTR`, { headers: { accept: 'application/dns-json' } }).then(res => res.json() as Promise<HttpDNSResponse>)
+
+				return result.Answer[0].data
+			}
+		}
 	} catch {
 		return null
 	}

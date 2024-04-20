@@ -12,6 +12,21 @@
 }
 
 /**
+ * Generate a Number with crypto
+ * @example
+ * ```
+ * import { number } from "@rjweb/utils"
+ * 
+ * number.generateCrypto(10, 100) // 63
+ * ```
+ * @since 1.12.10
+*/ export function generateCrypto(min: number, max: number): number {
+	const array = new Uint32Array(1)
+	globalThis.crypto.getRandomValues(array)
+	return Math.floor((array[0] / 0xFFFFFFFF) * (max - min + 1) + min)
+}
+
+/**
  * Round a Number
  * @example
  * ```
@@ -67,5 +82,22 @@
  * @since 1.5.0
 */ export function limit(input: number, max: number): number {
 	if (input > max) return max
+	else return input
+}
+
+/**
+ * Clamp a Number
+ * @example
+ * ```
+ * import { number } from "@rjweb/utils"
+ * 
+ * number.clamp(100, 40, 200) // 100
+ * number.clamp(100, 2000, 200) // 200
+ * number.clamp(1042, 1000, 2000) // 1042
+ * ```
+ * @since 1.12.10
+*/ export function clamp(input: number, min: number, max: number): number {
+	if (input < min) return min
+	else if (input > max) return max
 	else return input
 }

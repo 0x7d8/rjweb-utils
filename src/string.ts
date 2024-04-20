@@ -522,3 +522,31 @@ class VariableParserArgBuilder<Args extends Record<string, boolean> = {}> {
 		return new CompiledVariableParser<Data>(this.variables)
 	}
 }
+
+/**
+ * Check how similar two strings are
+ * @example
+ * ```
+ * import { string } from "@rjweb/utils"
+ * 
+ * string.similarity('Hello', 'Hello') // 100
+ * string.similarity('Hello', 'Helo') // 80
+ * string.similarity('Hello', 'sadfasdf') // 0
+ * string.similarity('Hello', 'Hello World') // 50
+ * ```
+ * @since 1.12.10
+*/ export function similarity(a: string, b: string): number {
+	if (a === b) return 100
+
+	a = a.replaceAll(' ', '').toLowerCase()
+	b = b.replaceAll(' ', '').toLowerCase()
+
+	const length = Math.max(a.length, b.length)
+	let matches = 0
+
+	for (let i = 0; i < a.length; i++) {
+		if (b.includes(a[i])) matches++
+	}
+
+	return (matches / length) * 100
+}
