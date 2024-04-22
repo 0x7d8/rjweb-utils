@@ -1,6 +1,6 @@
 import * as child from "child_process"
 import * as os from "os"
-import { number } from "."
+import { number, size } from "."
 
 function cpuAverage() {
 	let totalIdle = 0, totalTick = 0
@@ -37,6 +37,11 @@ function cpuAverage() {
 	 * @default false
 	 * @since 1.3.0
 	*/ async?: boolean
+	/**
+	 * The timeout for the command
+	 * @default 0
+	 * @since 1.12.11
+	*/ timeout?: number
 }>(command: string, options?: Options): Options['async'] extends true ? Promise<string> : string {
 	const pOptions = {
 		async: options?.async ?? false
@@ -44,14 +49,17 @@ function cpuAverage() {
 
 	if (pOptions.async) {
 		return new Promise((resolve, reject) => {
-			child.exec(command, (err, stdout) => {
+			child.exec(command, {
+				maxBuffer: size(50).mb(),
+				timeout: options?.timeout ?? 0
+			}, (err, stdout, stderr) => {
 				if (err) return reject(err)
 
-				return resolve(stdout)
+				return resolve(stdout.concat(stderr))
 			})
 		}) as any
 	} else {
-		return child.execSync(command, { stdio: 'pipe', encoding: 'utf8' }) as any
+		return child.execSync(command, { stdio: 'pipe', encoding: 'utf8', timeout: options?.timeout ?? 0 }) as any
 	}
 }
 

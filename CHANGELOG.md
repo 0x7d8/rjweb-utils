@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.12.11
+
+- Increase `maxBuffer` for `system.execute`
+- Allow timeout in `system.execute`
+
 ## 1.12.10
 
 - Add `string.similarity`
