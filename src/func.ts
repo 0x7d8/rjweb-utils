@@ -12,6 +12,7 @@ type Response<Data, Err> = Success<Data> | Error<Err>
  * const [ success, data, error, ms ] = func.wrap(system.execute, 'wesgasg', { async: false })) // [false, undefined, <Error>, 1]
  * ```
  * @since 1.10.0
+ * @supports nodejs, browser
 */ export function wrap<Err = any, Fn extends (...args: any[]) => Promise<any> | any = any>(fn: Fn, ...args: Parameters<Fn>): ReturnType<Fn> extends Promise<any> ? Promise<Response<Awaited<ReturnType<Fn>>, Err>> : Response<ReturnType<Fn>, Err> {
 	const start = performance.now()
 	

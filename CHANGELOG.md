@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.12.12
+
+- Add `array.randomizeCrypto`
+- Add `array.randomCrypto`
+- Add `@supports` to jsdocs
+- Rewrite some functions for wider support
+- Improve performance of some utils
+
 ## 1.12.11
 
 - Increase `maxBuffer` for `system.execute`

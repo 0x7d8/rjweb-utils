@@ -40,7 +40,8 @@ type HttpDNSResponse = {
  * await dns.resolve('google.cdom', 'v6') // null
  * ```
  * @since 1.8.0
-*/ export async function resolve(host: string, prefer: 'v4' | 'v6' = 'v4', mode: 'dns' | 'fetch' = 'dns'): Promise<IPAddress | null> {
+ * @supports nodejs, browser
+*/ export async function resolve(host: string, prefer: 'v4' | 'v6' = 'v4', mode: 'dns' | 'fetch'): Promise<IPAddress | null> {
 	if (isIP(host)) return new IPAddress(host)
 
 	if (mode === 'dns') {
@@ -84,6 +85,7 @@ type HttpDNSResponse = {
  * await dns.reverse(googleV6) // 'fra16s53-in-x0e.1e100.net'
  * ```
  * @since 1.10.5
+ * @supports nodejs, browser
 */ export async function reverse(ip: IPAddress, mode: 'dns' | 'fetch'): Promise<string | null> {
 	try {
 		if (mode === 'dns') {

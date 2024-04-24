@@ -25,6 +25,7 @@ export const MAX_IPV4_LONG = 4294967295,
  * }
  * ```
  * @since 1.7.0
+ * @supports nodejs, browser
 */ export class Subnet<Type extends 4 | 6 = 4 | 6> {
 	private iFirst: IPAddress
 	private type: 4 | 6
@@ -47,6 +48,7 @@ export const MAX_IPV4_LONG = 4294967295,
 	 * }
 	 * ```
 	 * @since 1.7.0
+	 * @supports nodejs, browser
 	*/ constructor(subnet: string | Subnet, type?: Type) {
 		if (subnet instanceof Subnet) {
 			if (type && type !== subnet.type) throw new Error('Not Expected Type')
@@ -286,6 +288,7 @@ export const MAX_IPV4_LONG = 4294967295,
  * ip.short() // 127.1
  * ```
  * @since 1.7.0
+ * @supports nodejs, browser
 */ export class IPAddress<Type extends 4 | 6 = 4 | 6> {
 	private type: Type
 
@@ -301,6 +304,7 @@ export const MAX_IPV4_LONG = 4294967295,
 	 * ip.short() // 127.1
 	 * ```
 	 * @since 1.7.0
+	 * @supports nodejs, browser
 	*/ constructor(ip: string | number | bigint | IPAddress | Uint8Array | Uint16Array, type?: Type) {
 		if (ip instanceof IPAddress) {
 			if (type && type !== ip.type) throw new Error('Not Expected Type')
@@ -593,6 +597,7 @@ export const MAX_IPV4_LONG = 4294967295,
  * ```
  * @returns ms it took to connect or false if failed
  * @since 1.1.0
+ * @supports nodejs
 */ export function test(host: string | IPAddress, port: number, timeout: number = 10000): Promise<number | false> {
 	return new Promise((resolve) => {
 		const start = performance.now()
@@ -659,6 +664,7 @@ function checkV4(ip: string): boolean {
  * ```
  * @returns IP Type or false if failed
  * @since 1.1.0
+ * @supports nodejs, browser
 */ export function isIP(ip: string, type: 'v4' | 'v6' | 'v6 | v4' = 'v6 | v4'): 'v4' | 'v6' | false {
 	if (type !== 'v6' && !ip.includes(':')) {
 		const res = checkV4(ip)
@@ -716,6 +722,7 @@ function checkV4(ip: string): boolean {
  * ```
  * @returns Subnet IP Type or false if failed
  * @since 1.7.0
+ * @supports nodejs, browser
 */ export function isSubnet(ip: string, type: 'v4' | 'v6' | 'v6 | v4' = 'v6 | v4'): 'v4' | 'v6' | false {
 	if (type !== 'v6' && !ip.includes(':')) {
 		const [ content, mask ] = ip.split('/')
@@ -754,6 +761,7 @@ function checkV4(ip: string): boolean {
  * console.log(`View at http://${(await network.currentIP('v4'))?.long()} or http://[${(await network.currentIP('v6'))?.long()}]`)
  * ```
  * @since 1.8.4
+ * @supports nodejs, browser
 */ export async function currentIP<Type extends 'v4' | 'v6' | undefined>(type?: Type): Promise<(Type extends 'v4' ? Type extends 'v6' ? IPAddress<4> | IPAddress<4> : IPAddress<4> : IPAddress<6>) | null> {
 	try {
 		const ip = await fetch(`https://${type === 'v4' ? 'ipv4' : type === 'v6' ? 'ipv6' : 'ip'}.rjns.dev`)
@@ -774,6 +782,7 @@ function checkV4(ip: string): boolean {
  * ```
  * @returns Time it took to download in ms
  * @since 1.8.5
+ * @supports nodejs
 */ export async function download(url: string, file: fs.PathLike, options?: RequestInit): Promise<number> {
 	const startTime = performance.now()
 
@@ -809,6 +818,7 @@ function checkV4(ip: string): boolean {
  * }
  * ```
  * @since 1.9.0
+ * @supports nodejs, browser
 */ export function stream(url: string, options?: RequestInit): AsyncIterable<Uint8Array> & { text(): AsyncIterable<string> } {
 	let fetched: Response | null = null, fetchIterator: AsyncIterableIterator<any> | null = null
 	const decoder = new TextDecoder()

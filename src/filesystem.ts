@@ -14,6 +14,7 @@ import { as, stream as _stream, string, ArrayOrNot } from "."
  * ```
  * @throws If an `fs` error occurs
  * @since 1.0.0
+ * @supports nodejs
 */ export function getFiles<Options extends {
 	/**
 	 * Whether to retrieve `fs.Dirent`'s instead of file location strings
@@ -115,6 +116,7 @@ import { as, stream as _stream, string, ArrayOrNot } from "."
  * }
  * ```
  * @since 1.9.0
+ * @supports nodejs
 */ export function stream(file: fs.PathLike, options?: { slice?: { start?: number, end?: number } }): AsyncIterable<Buffer> & { lines(): AsyncIterable<string> } {
 	const stream = fs.createReadStream(file, {
 		start: options?.slice?.start,
@@ -141,6 +143,7 @@ import { as, stream as _stream, string, ArrayOrNot } from "."
  * filesystem.env('./invalid-env') // {}
  * ```
  * @since 1.10.4
+ * @supports nodejs
 */ export function env<Options extends {
 	/**
 	 * Whether to use async fs
@@ -170,6 +173,7 @@ import { as, stream as _stream, string, ArrayOrNot } from "."
  * await filesystem.hash('./doc.txt', { algorithm: 'sha256', salt: '123', output: 'hex' }) // 91be40b8a3959b7821be224d8ce5ad09874fc84dcacd9fed77bf07000141e15a
  * ```
  * @since 1.12.0
+ * @supports nodejs
 */ export async function hash<const Options extends {
 	/**
 	 * The Algorithm to use
@@ -238,6 +242,7 @@ import { as, stream as _stream, string, ArrayOrNot } from "."
  * }
  * ```
  * @since 1.12.3
+ * @supports nodejs
 */ export function walk<Options extends {
 	/**
 	 * Whether to use async fs

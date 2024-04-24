@@ -31,6 +31,7 @@ function cpuAverage() {
  * ```
  * @throws If exit code is not 0
  * @since 1.3.0
+ * @supports nodejs
 */ export function execute<Options extends {
 	/**
 	 * Whether to use async child_process
@@ -72,6 +73,7 @@ function cpuAverage() {
  * await system.cpu() // 3.76
  * ```
  * @since 1.3.1
+ * @supports nodejs
 */ export async function cpu(captureTime: number = 250): Promise<number> {
 	return new Promise((resolve) => {
 		const startUsage = cpuAverage()

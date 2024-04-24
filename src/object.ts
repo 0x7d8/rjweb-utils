@@ -14,6 +14,7 @@ import { DeepRequired, UnionToIntersection } from "."
  * }) // { ok: false, nvm: 0 }
  * ```
  * @since 1.0.0
+ * @supports nodejs, browser
 */ export function deepParse<Obj extends Record<any, any>>(object: DeepRequired<Obj>, provided: Partial<Obj>): DeepRequired<Obj> {
 	const handleObject = (object: Record<string, any>, merge: Record<string, any>) => {
 		let output: Record<string, any> = {}
@@ -41,6 +42,7 @@ import { DeepRequired, UnionToIntersection } from "."
  * object.deepCompare({ ok: true, e: { g: 0 } }, { ok: true, e: { g: 0 } }) // true
  * ```
  * @since 1.0.0
+ * @supports nodejs, browser
 */ export function deepCompare<Object extends Record<any, any>, Compare extends Record<any, any>>(object: Object, compare: Compare): compare is Object {
 	if (Object.is(object, compare)) return true
 
@@ -72,6 +74,7 @@ import { DeepRequired, UnionToIntersection } from "."
  * object.deepMerge({ ok: true, e: 'hello', { ok: false, e: { g: 1 } }, { ok: true, e: { g: 2 } }) // { ok: true, e: { g: 2 } }
  * ```
  * @since 1.12.7
+ * @supports nodejs, browser
 */ export function deepMerge<Obj extends Record<any, any>[]>(...objects: Obj): UnionToIntersection<Obj[number]> {
 	const isObject = (item: any) => typeof item === 'object' && !Array.isArray(item)
 

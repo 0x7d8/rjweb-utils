@@ -12,6 +12,7 @@ import * as number from "./number"
  * array.remove(arr, 'value', 1) // [2, 3, 4, 5]
  * ```
  * @since 1.0.0
+ * @supports nodejs, browser
 */ export function remove<Arr extends any[], Mode extends 'index' | 'value'>(input: Arr, mode: Mode, value: Mode extends 'index' ? number : Arr[number] | ((val: Arr[number]) => boolean)): Arr {
 	switch (mode) {
 		case "index": {
@@ -47,6 +48,7 @@ import * as number from "./number"
  * array.rotate(arr, 4) // ['E', 'A', 'B', 'C', 'D']
  * ```
  * @since 1.4.4
+ * @supports nodejs, browser
 */ export function rotate<Arr extends any[]>(input: Arr, rotations: number): Arr {
 	if (input.length < 2) return input
 
@@ -70,6 +72,7 @@ import * as number from "./number"
  * array.average(arr) // 38.833333333333336
  * ```
  * @since 1.4.5
+ * @supports nodejs, browser
 */ export function average(input: number[]) : number {
 	return input.reduce((prev, current) => prev + current, 0) / input.length
 }
@@ -85,8 +88,15 @@ import * as number from "./number"
  * array.sum(arr) // 15
  * ```
  * @since 1.3.0
+ * @supports nodejs, browser
 */ export function sum(input: number[]): number {
-	return input.reduce((prev, current) => prev + current, 0)
+	let sum = 0
+
+	for (let i = 0; i < input.length; i++) {
+		sum += input[i]
+	}
+
+	return sum
 }
 
 /**
@@ -99,6 +109,7 @@ import * as number from "./number"
  * array.limit([1, 2, 3, 4, 5, 6, 7], 5, '!') // [1, 2, 3, 4, 5, '!']
  * ```
  * @since 1.5.2
+ * @supports nodejs, browser
 */ export function limit<Arr extends any[], End extends any = '...'>(input: Arr, length: number, end?: End): [...Arr, End] {
 	if (input.length <= length) return input as never
 	else return input.slice(0, length).concat(end ?? '...') as never
@@ -114,6 +125,7 @@ import * as number from "./number"
  * array.equal([1, 1, 1, 1]) // true
  * ```
  * @since 1.5.4
+ * @supports nodejs, browser
 */ export function equal(input: any[]): boolean {
 	if (input.length <= 1) return true
 
@@ -138,10 +150,30 @@ import * as number from "./number"
  * array.random(arr, 4) // 'A'
  * ```
  * @since 1.9.1
+ * @supports nodejs, browser
 */ export function random<Arr extends any[]>(input: Arr): Arr[number] | undefined {
 	if (!input.length) return undefined
 
   return input[number.generate(0, input.length - 1)]
+}
+
+/**
+ * Get a random value of an Array with crypto
+ * @example
+ * ```
+ * import { array } from "@rjweb/utils"
+ * 
+ * const arr = ['A', 'B', 'C', 'D', 'E']
+ * 
+ * array.randomCrypto(arr, 2) // 'C'
+ * array.randomCrypto(arr, 4) // 'A'
+ * ```
+ * @since 1.12.12
+ * @supports nodejs, browser
+*/ export function randomCrypto<Arr extends any[]>(input: Arr): Arr[number] | undefined {
+	if (!input.length) return undefined
+
+	return input[number.generateCrypto(0, input.length - 1)]
 }
 
 /**
@@ -156,10 +188,49 @@ import * as number from "./number"
  * array.randomize(arr) // ['E', 'A', 'C', 'B', 'D']
  * ```
  * @since 1.9.1
+ * @supports nodejs, browser
 */ export function randomize<Arr extends any[]>(input: Arr): Arr {
 	if (input.length < 2) return input
 
 	const arr = Array.from(input) as Arr
 
-  return arr.sort(() => Math.random() > Math.random() ? Math.random() > Math.random() ? 1 : 0 : -1)
+	for (let i = arr.length - 1; i > 0; i--) {
+		const j = number.generate(0, i)
+		const temp = arr[i]
+		arr[i] = arr[j]
+		arr[j] = temp
+	}
+
+	return arr
+}
+
+/**
+ * Randomize an Array with crypto
+ * @example
+ * ```
+ * import { array } from "@rjweb/utils"
+ * 
+ * const arr = ['A', 'B', 'C', 'D', 'E']
+ * 
+ * array.randomizeCrypto(arr) // ['C', 'D', 'E', 'A', 'B']
+ * array.randomizeCrypto(arr) // ['E', 'A', 'C', 'B', 'D']
+ * ```
+ * @since 1.12.12
+ * @supports nodejs, browser
+*/ export function randomizeCrypto<Arr extends any[]>(input: Arr): Arr {
+	if (input.length < 2) return input
+
+	const arr = Array.from(input) as Arr,
+		randomData = new Uint32Array(arr.length)
+
+	globalThis.crypto.getRandomValues(randomData)
+
+	for (let i = arr.length - 1; i > 0; i--) {
+		const j = randomData[i] % i
+		const temp = arr[i]
+		arr[i] = arr[j]
+		arr[j] = temp
+	}
+
+	return arr
 }

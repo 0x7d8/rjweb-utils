@@ -15,6 +15,7 @@ import * as streamsWeb from "stream/web"
  * }
  * ```
  * @since 1.9.0
+ * @supports nodejs, browser
 */ export function iterator<Data = any>(stream: streams.Readable | streamsWeb.ReadableStream<Data>): AsyncIterable<Data> {
 	if (stream instanceof streams.Readable) {
 		return stream.iterator()

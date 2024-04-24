@@ -112,6 +112,7 @@ class Time<Amount extends number> {
 	 * console.log('2 sec later')
 	 * ```
 	 * @since 1.5.0
+	 * @supports nodejs, browser
 	*/ wait(ms: number): Promise<void> {
 		return new Promise((resolve) => setTimeout(resolve, ms))
 	},
@@ -129,6 +130,7 @@ class Time<Amount extends number> {
 	 * console.log(time, result) // 20000 undefined
 	 * ```
 	 * @since 1.5.3
+	 * @supports nodejs, browser
 	*/ fn<Fn extends () => Promise<any> | any>(fn: Fn): Fn extends () => Promise<infer R> ? Promise<[ number, Awaited<R> ]> : Fn extends () => infer R ? [ number, R ] : never {
 		const startTime = performance.now()
 
@@ -156,6 +158,7 @@ class Time<Amount extends number> {
 	 * time.parse('hi') // null
 	 * ```
 	 * @since 1.12.8
+	 * @supports nodejs, browser
 	*/ parse(input: string): number | null {
 		const parsed = Date.parse(input)
 		if (!isNaN(parsed)) return parsed - Date.now()

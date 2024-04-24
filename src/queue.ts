@@ -21,6 +21,7 @@ type Function = (...args: any[]) => any
  * mails.add(() => sendMail()) // will execute after 6000ms
  * ```
  * @since 1.4.0
+ * @supports nodejs, browser
 */ export class Queue<const Options extends {
 	/**
 	 * Time to wait between each function call

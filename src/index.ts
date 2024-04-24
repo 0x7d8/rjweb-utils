@@ -48,6 +48,7 @@ export type DeepRequired<Type> = Type extends {}
  * as<number[]>(descriptor.value).push(2)
  * ```
  * @since 1.0.0
+ * @supports nodejs, browser
 */ export function as<T>(input: any): T {
 	return input
 }

@@ -1,72 +1,10 @@
 import * as crypto from "crypto"
 import { ArrayOrNot } from "src"
 
-let randomIndex: number
-let randomBytes: Buffer
-
-const getNextRandomValue = () => {
-	if (randomIndex === undefined || randomIndex >= randomBytes.length) {
-		randomIndex = 0
-		randomBytes = crypto.randomBytes(256)
-	}
-
-	const result = randomBytes[randomIndex]
-	randomIndex += 1
-
-	return result
-}
-
-const randomNumber = (max: number) => {
-	let rand = getNextRandomValue()
-	while (rand >= 256 - (256 % max)) rand = getNextRandomValue()
-
-	return rand % max
-}
-
-const lowercase = 'abcdefghijklmnopqrstuvwxyz'
-const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-const numbers = '0123456789'
-const symbols = '!@#$%^&*()+_-=}{[]|:;"/?.><,`~'
-
-const _generate = (options: Record<string, any>, pool: string) => {
-	const optionsLength = options.length ?? 12
-	const poolLength = pool.length
-	let password = ''
-
-	for (let i = 0; i < optionsLength; i++) password += pool[randomNumber(poolLength)]
-
-	return password
-}
-
-const _string = (options: Record<string, any>) => {
-	options = options || {}
-
-	if (!('length' in options)) options.length = 10
-	if (!('numbers' in options)) options.numbers = false
-	if (!('symbols' in options)) options.symbols = false
-	if (!('uppercase' in options)) options.uppercase = true
-	if (!('lowercase' in options)) options.lowercase = true
-	if (!('exclude' in options)) options.exclude = []
-
-	let pool = ''
-	if (options.lowercase) pool += lowercase
-	if (options.uppercase) pool += uppercase
-	if (options.numbers) pool += numbers
-	if (options.symbols) {
-		if (typeof options.symbols === 'string') pool += options.symbols
-		else pool += symbols
-	}
-
-	if (!pool) {
-		throw new TypeError('At least one rule must be true')
-	}; let i = options.exclude?.length ?? 0
-	while (i--) {
-		pool = pool.replace(options.exclude![i], '')
-	}
-
-	const password = _generate(options, pool)
-	return password
-}
+const lowercase = Object.freeze('abcdefghijklmnopqrstuvwxyz'.split(''))
+const uppercase = Object.freeze('ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''))
+const numbers = Object.freeze('0123456789'.split(''))
+const symbols = Object.freeze('!@#$%^&*()+_-=}{[]|:;"/?.><,`~'.split(''))
 
 /**
  * Hash a String
@@ -77,6 +15,7 @@ const _string = (options: Record<string, any>) => {
  * string.hash('Hello', { algorithm: 'sha256', salt: '123', output: 'hex' }) // 91be40b8a3959b7821be224d8ce5ad09874fc84dcacd9fed77bf07000141e15a
  * ```
  * @since 1.0.0
+ * @supports nodejs
 */ export function hash<Options extends {
 	/**
 	 * The Algorithm to use
@@ -121,6 +60,7 @@ const _string = (options: Record<string, any>) => {
  * string.encrypt('Hello', 'secret', { algorithm: 'aes-256-cbc', output: 'hex' }) // df4d0fe46e0210d4ef46368a6c3d56bb
  * ```
  * @since 1.0.0
+ * @supports nodejs
 */ export function encrypt<Options extends {
 	/**
 	 * The Algorithm to use
@@ -160,6 +100,7 @@ const _string = (options: Record<string, any>) => {
  * string.decrypt('df4d0fe46e0210d4ef46368a6c3d56bb', 'secret', { algorithm: 'aes-256-cbc', input: 'hex' }) // Hello
  * ```
  * @since 1.0.0
+ * @supports nodejs
 */ export function decrypt<Options extends {
 	/**
 	 * The Algorithm to use
@@ -194,6 +135,7 @@ const _string = (options: Record<string, any>) => {
  * string.generate({ length: 5, numbers: true, ... }) // fgD43
  * ```
  * @since 1.0.0
+ * @supports nodejs, browser
 */ export function generate(options?: {
 	/**
    * The Length of the String
@@ -226,7 +168,38 @@ const _string = (options: Record<string, any>) => {
 	 * @since 1.0.0
   */ exclude?: string[]
 }): string {
-	return _string(options || {})
+	const pOptions = {
+		length: options?.length ?? 12,
+		numbers: options?.numbers ?? true,
+		symbols: options?.symbols ?? false,
+		uppercase: options?.uppercase ?? true,
+		lowercase: options?.lowercase ?? true,
+		exclude: options?.exclude ?? []
+	}
+
+	const chars: string[] = []
+
+	if (pOptions.numbers) chars.push(...numbers)
+	if (pOptions.symbols) chars.push(...symbols)
+	if (pOptions.uppercase) chars.push(...uppercase)
+	if (pOptions.lowercase) chars.push(...lowercase)
+
+	for (const exclude of pOptions.exclude) {
+		const index = chars.indexOf(exclude)
+		if (index > -1) chars.splice(index, 1)
+	}
+
+	if (!chars.length) throw new Error('No Characters to choose from')
+
+	let result = ''
+	const random = new Uint32Array(pOptions.length)
+	globalThis.crypto.getRandomValues(random)
+
+	for (let i = 0; i < pOptions.length; i++) {
+		result += chars[random[i] % chars.length]
+	}
+
+	return result
 }
 
 /**
@@ -235,9 +208,10 @@ const _string = (options: Record<string, any>) => {
  * ```
  * import { string } from "@rjweb/utils"
  * 
- * string.generateSegments([ 2, 5, 3 ], '-', { numbers: true, ... }) // dK-4Rflk-jGb
+ * string.generateSegments([2, 5, 3], '-', { numbers: true, ... }) // dK-4Rflk-jGb
  * ```
  * @since 1.0.0
+ * @supports nodejs, browser
 */ export function generateSegments(segments: number[], seperator: string = '-', options?: {
   /**
    * Whether Numbers should be included
@@ -265,7 +239,17 @@ const _string = (options: Record<string, any>) => {
 	 * @since 1.0.0
   */ exclude?: string[]
 }): string {
-	return segments.map((length) => generate({ ...options, length })).join(seperator)
+	const full = generate({ length: segments.reduce((a, b) => a + b, 0), numbers: options?.numbers, symbols: options?.symbols, uppercase: options?.uppercase, lowercase: options?.lowercase, exclude: options?.exclude })
+
+	let result = '',
+		index = 0
+
+	for (const segment of segments) {
+		result += full.slice(index, index + segment) + seperator
+		index += segment
+	}
+
+	return result.slice(0, -seperator.length)
 }
 
 /**
@@ -281,6 +265,7 @@ const _string = (options: Record<string, any>) => {
  * string.limit('   Ok       ', 3) // Ok
  * ```
  * @since 1.0.0
+ * @supports nodejs, browser
 */ export function limit(input: string, length: number, end: string = '...'): string {
 	const trimmed = input.trimStart()
 	
@@ -302,6 +287,7 @@ const _string = (options: Record<string, any>) => {
  * })
  * ```
  * @since 1.8.3
+ * @supports nodejs, browser
 */ export async function replaceAsync(input: string, searchValue: string | RegExp, replacer: (match: string) => string | Promise<string>): Promise<string> {
   try {
     if (typeof replacer === 'function') {
@@ -338,6 +324,7 @@ const _string = (options: Record<string, any>) => {
  * string.env('some invalid string') // {}
  * ```
  * @since 1.10.4
+ * @supports nodejs, browser
 */ export function env(input: string): Record<string, string> {
 	const parsed: Record<string, string> = {}
 
@@ -500,6 +487,7 @@ class VariableParserArgBuilder<Args extends Record<string, boolean> = {}> {
  * await parser.parse('I have {{round(10.32323463246, 4)}}{{echo(€\\, Sir.)}}', { something: 1 }) // 'I have 10.3232€, Sir.'
  * ```
  * @since 1.8.3
+ * @supports nodejs, browser
 */ export class VariableParser<Data = undefined> {
 	private variables: Record<string, { args: Record<string, boolean>, handler: (data: Data, args: Record<string, string | undefined>, invalid: (reason: string) => '') => string | Promise<string> }> = {}
 
@@ -535,6 +523,7 @@ class VariableParserArgBuilder<Args extends Record<string, boolean> = {}> {
  * string.similarity('Hello', 'Hello World') // 50
  * ```
  * @since 1.12.10
+ * @supports nodejs, browser
 */ export function similarity(a: string, b: string): number {
 	if (a === b) return 100
 
