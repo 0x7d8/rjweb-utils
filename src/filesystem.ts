@@ -301,3 +301,54 @@ import { as, stream as _stream, string, ArrayOrNot } from "."
 		} as never
 	}
 }
+
+/**
+ * Get the Size of a Path (File or Directory)
+ * @example
+ * ```
+ * import { filesystem } from "@rjweb/utils"
+ * 
+ * await filesystem.size('./node_modules') // 123456
+ * await filesystem.size('./package.json') // 1234
+ * ```
+ * @since 1.12.3
+ * @supports nodejs
+*/ export function size<Options extends {
+	/**
+	 * Whether to use async fs
+	 * @default true
+	 * @since 1.12.13
+	*/ async?: boolean
+}>(path: string, options?: Options): Options['async'] extends false ? number : Promise<number> {
+	if (options?.async ?? true) {
+		return new Promise(async(resolve) => {
+			const stat = await fs.promises.stat(path)
+
+			if (stat.isDirectory()) {
+				let size = 0
+
+				for await (const dirent of walk(path, { async: true, recursive: true })) {
+					size += (await fs.promises.stat(dirent.path)).size
+				}
+
+				return resolve(size)
+			}
+
+			return resolve(stat.size)
+		}) as never
+	} else {
+		const stat = fs.statSync(path)
+
+		if (stat.isDirectory()) {
+			let size = 0
+
+			for (const dirent of walk(path, { async: false, recursive: true })) {
+				size += fs.statSync(dirent.path).size
+			}
+
+			return size as never
+		}
+
+		return stat.size as never
+	}
+}

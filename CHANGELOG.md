@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.12.13
+
+- Add `filesystem.size`
+
 ## 1.12.12
 
 - Add `array.randomizeCrypto`

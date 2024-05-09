@@ -23,10 +23,12 @@
  * @since 1.12.10
  * @supports nodejs, browser
 */ export function generateCrypto(min: number, max: number): number {
-	const array = new Uint32Array(1)
+	const array = new Uint32Array(4)
 	globalThis.crypto.getRandomValues(array)
 
-	return Math.floor((array[0] / 0xFFFFFFFF) * (max - min + 1) + min)
+	const number = array.reduce((a, b) => a + b, 0)
+
+	return Math.floor((number / 0xFFFFFFFF) * (max - min + 1) + min) % (max + 1)
 }
 
 /**
