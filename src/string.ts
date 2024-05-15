@@ -1,5 +1,5 @@
 import * as crypto from "crypto"
-import { ArrayOrNot } from "src"
+import { ArrayOrNot } from "."
 
 const lowercase = Object.freeze('abcdefghijklmnopqrstuvwxyz'.split(''))
 const uppercase = Object.freeze('ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''))
