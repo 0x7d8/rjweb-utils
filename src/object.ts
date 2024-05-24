@@ -92,3 +92,21 @@ import { DeepRequired, UnionToIntersection } from "."
 		return acc
 	}, {} as Obj[number]) as never
 }
+
+/**
+ * Pick Properties from an Object
+ * @example
+ * ```
+ * import { object } from "@rjweb/utils"
+ * 
+ * object.pick({ ok: true, e: 0 }, ['ok']) // { ok: true }
+ * object.pick({ ok: true, e: 0 }, ['ok', 'e']) // { ok: true, e: 0 }
+ * ```
+ * @since 1.12.15
+ * @supports nodejs, browser
+*/ export function pick<Object extends Record<any, any>, Keys extends keyof Object>(object: Object, keys: Keys[]): Pick<Object, Keys> {
+	return keys.reduce((acc, key) => {
+		acc[key] = object[key]
+		return acc
+	}, {} as Pick<Object, Keys>)
+}

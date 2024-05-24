@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.12.15
+
+- Add `object.pick`
+
 ## 1.12.14
 
 - Fix import issue
