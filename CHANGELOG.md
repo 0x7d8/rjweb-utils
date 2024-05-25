@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.12.16
+
+- Add `network.hash`
+
 ## 1.12.15
 
 - Add `object.pick`

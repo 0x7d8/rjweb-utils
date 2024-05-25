@@ -1,6 +1,7 @@
 import * as net from "net"
 import * as fs from "fs"
-import { as } from "."
+import { ArrayOrNot, as } from "."
+import * as crypto from "crypto"
 
 const inspectSymbol = Symbol.for('nodejs.util.inspect.custom')
 
@@ -872,5 +873,57 @@ function checkV4(ip: string): boolean {
 				}
 			}
 		}
+	}
+}
+
+/**
+ * Hash a File
+ * @example
+ * ```
+ * import { network } from "@rjweb/utils"
+ * 
+ * await network.hash('https://google.com', { algorithm: 'sha256', salt: '123', output: 'hex' }) // 91be40b8a3959b7821be224d8ce5ad09874fc84dcacd9fed77bf07000141e15a
+ * ```
+ * @since 1.12.16
+ * @supports nodejs
+*/ export async function hash<const Options extends {
+	/**
+	 * The Algorithm to use
+	 * @default "sha256"
+	 * @since 1.12.0
+	*/ algorithm?: ArrayOrNot<string>
+	/**
+	 * The Salt to add
+	 * @since 1.12.0
+	*/ salt?: string
+	/**
+	 * The Output type to emit
+	 * @default "hex"
+	 * @since 1.12.0
+	*/ output?: crypto.BinaryToTextEncoding | 'buffer'
+}>(url: string, options?: Options, fetch?: RequestInit): Promise<Options['algorithm'] extends Array<any>
+	? { [Key in Options['algorithm'][number]]: Options['output'] extends 'buffer' ? Buffer : string }
+	: Options['output'] extends 'buffer' ? Buffer : string
+> {
+	const pOptions = {
+		algorithm: options?.algorithm ?? 'sha256',
+		salt: options?.salt,
+		output: options?.output ?? 'hex'
+	}
+
+	pOptions.algorithm = Array.isArray(pOptions.algorithm) ? pOptions.algorithm : [pOptions.algorithm]
+
+	const hashes: Record<string, crypto.Hash | crypto.Hmac> = Object.fromEntries(pOptions.algorithm.map((a) => [a, pOptions.salt ? crypto.createHmac(a, pOptions.salt) : crypto.createHash(a)]))
+
+	for await (const chunk of stream(url, fetch)) {
+		for (const hash of Object.values(hashes)) {
+			hash.update(chunk)
+		}
+	}
+
+	if (Array.isArray(options?.algorithm)) {
+		return Object.fromEntries(pOptions.algorithm.map((a) => [a, pOptions.output === 'buffer' ? hashes[a].digest() : hashes[a].digest(pOptions.output)])) as never
+	} else {
+		return pOptions.output === 'buffer' ? hashes[pOptions.algorithm[0]].digest() as never : hashes[pOptions.algorithm[0]].digest(pOptions.output) as never
 	}
 }
