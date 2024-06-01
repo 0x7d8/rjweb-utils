@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.12.17
+
+- Add `number.factorial`
+- Add `number.between`
+- Add `number.prime`
+- Add `number.fibonacci`
+- Add `number.triangle`
+- Add `number.factors`
+- Add `number.gcd`
+- Add `number.lcm`
+- Add `number.power`
+
 ## 1.12.16
 
 - Add `network.hash`

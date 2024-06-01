@@ -74,7 +74,7 @@
  * @since 1.2.0
  * @supports nodejs, browser
 */ export function change(input: number, changed: number): number {
-	return Math.round((((changed - input) / input) * 100) * 10) / 10
+	return ((changed - input) / input) * 100
 }
 
 /**
@@ -110,4 +110,160 @@
 	if (input < min) return min
 	else if (input > max) return max
 	else return input
+}
+
+/**
+ * Get the factorial of a number
+ * @example
+ * ```
+ * import { number } from "@rjweb/utils"
+ * 
+ * number.factorial(5) // 120
+ * number.factorial(10) // 3628800
+ * number.factorial(0) // 1
+ * number.factorial(-1) // 1
+ * ```
+ * @since 1.12.17
+ * @supports nodejs, browser
+*/ export function factorial(input: number): number {
+	if (input <= 1) return 1
+
+	return input * factorial(input - 1)
+}
+
+/**
+ * Check if a number is between 2 numbers
+ * @example
+ * ```
+ * import { number } from "@rjweb/utils"
+ * 
+ * number.between(5, 0, 10) // true
+ * number.between(5, 10, 20) // false
+ * number.between(5, 5, 5) // true
+ * ```
+ * @since 1.12.17
+ * @supports nodejs, browser
+*/ export function between(input: number, min: number, max: number): boolean {
+	return input >= min && input <= max
+}
+
+/**
+ * Check if a number is prime
+ * @example
+ * ```
+ * import { number } from "@rjweb/utils"
+ * 
+ * number.prime(5) // true
+ * number.prime(10) // false
+ * ```
+ * @since 1.12.17
+ * @supports nodejs, browser
+*/ export function prime(input: number): boolean {
+	if (input <= 1) return false
+
+	for (let i = 2; i <= Math.sqrt(input); i++) {
+		if (input % i === 0) return false
+	}
+
+	return true
+}
+
+/**
+ * Get the nth number in the fibonacci sequence
+ * @example
+ * ```
+ * import { number } from "@rjweb/utils"
+ * 
+ * number.fibonacci(5) // 5
+ * number.fibonacci(10) // 55
+ * ```
+ * @since 1.12.17
+ * @supports nodejs, browser
+*/ export function fibonacci(input: number): number {
+	if (input <= 1) return input
+
+	return fibonacci(input - 1) + fibonacci(input - 2)
+}
+
+/**
+ * Get the triangle number of a number
+ * @example
+ * ```
+ * import { number } from "@rjweb/utils"
+ * 
+ * number.triangle(5) // 15
+ * number.triangle(10) // 55
+ * ```
+ * @since 1.12.17
+ * @supports nodejs, browser
+*/ export function triangle(input: number): number {
+	return (input * (input + 1)) / 2
+}
+
+/**
+ * Get the factors of a number
+ * @example
+ * ```
+ * import { number } from "@rjweb/utils"
+ * 
+ * number.factors(5) // [1, 5]
+ * number.factors(10) // [1, 2, 5, 10]
+ * ```
+ * @since 1.12.17
+ * @supports nodejs, browser
+*/ export function factors(input: number): number[] {
+	const factors = []
+
+	for (let i = 1; i <= input; i++) {
+		if (input % i === 0) factors.push(i)
+	}
+
+	return factors
+}
+
+/**
+ * Get the greatest common divisor of 2 numbers
+ * @example
+ * ```
+ * import { number } from "@rjweb/utils"
+ * 
+ * number.gcd(5, 10) // 5
+ * number.gcd(10, 15) // 5
+ * ```
+ * @since 1.12.17
+ * @supports nodejs, browser
+*/ export function gcd(a: number, b: number): number {
+	if (b === 0) return a
+	else return gcd(b, a % b)
+}
+
+/**
+ * Get the least common multiple of 2 numbers
+ * @example
+ * ```
+ * import { number } from "@rjweb/utils"
+ * 
+ * number.lcm(5, 10) // 10
+ * number.lcm(10, 15) // 30
+ * ```
+ * @since 1.12.17
+ * @supports nodejs, browser
+*/ export function lcm(a: number, b: number): number {
+	return (a * b) / gcd(a, b)
+}
+
+/**
+ * Get whether a number is a power of another number
+ * @example
+ * ```
+ * import { number } from "@rjweb/utils"
+ * 
+ * number.power(5, 25) // true
+ * number.power(10, 15) // false
+ * ```
+*/ export function power(input: number, power: number): boolean {
+	if (input === 0) return false
+	if (power === 0) return false
+
+	return Math.pow(input, Math.round(Math.log(power) / Math.log(input))) === power
 }
