@@ -128,7 +128,12 @@
 */ export function factorial(input: number): number {
 	if (input <= 1) return 1
 
-	return input * factorial(input - 1)
+	let result = 1
+	for (let i = 2; i <= input; i++) {
+		result *= i
+	}
+
+	return result
 }
 
 /**
@@ -168,6 +173,8 @@
 	return true
 }
 
+const fibonacciCache = new Map<number, number>()
+
 /**
  * Get the nth number in the fibonacci sequence
  * @example
@@ -180,9 +187,18 @@
  * @since 1.12.17
  * @supports nodejs, browser
 */ export function fibonacci(input: number): number {
-	if (input <= 1) return input
+	if (input === 1) return 1
+	else if (input <= 0) return 0
 
-	return fibonacci(input - 1) + fibonacci(input - 2)
+	if (fibonacciCache.has(input)) return fibonacciCache.get(input)!
+
+	const sequence = [0, 1]
+	for (let i = 2; i <= input; i++) {
+		sequence[i] = sequence[i - 1] + sequence[i - 2]
+	}
+
+	fibonacciCache.set(input, sequence[input])
+	return sequence[input]
 }
 
 /**
@@ -266,4 +282,21 @@
 	if (power === 0) return false
 
 	return Math.pow(input, Math.round(Math.log(power) / Math.log(input))) === power
+}
+
+/**
+ * Reduce a fraction to its simplest form
+ * @example
+ * ```
+ * import { number } from "@rjweb/utils"
+ * 
+ * number.reduce(5, 10) // [1, 2]
+ * number.reduce(10, 15) // [2, 3]
+ * ```
+ * @since 1.12.18
+ * @supports nodejs, browser
+*/ export function reduce(numerator: number, denominator: number): [number, number] {
+	const _gcd = gcd(numerator, denominator)
+
+	return [numerator / _gcd, denominator / _gcd]
 }

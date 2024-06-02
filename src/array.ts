@@ -78,6 +78,61 @@ import * as number from "./number"
 }
 
 /**
+ * Get the Median of all Numbers in an Array
+ * @example
+ * ```
+ * import { array } from "@rjweb/utils"
+ * 
+ * const arr = [4, 65, 76, 90, 1, -3]
+ * 
+ * array.median(arr) // 35
+ * ```
+ * @since 1.12.18
+ * @supports nodejs, browser
+*/ export function median(input: number[]): number {
+	const sorted = input.sort((a, b) => a - b)
+	const mid = Math.floor(sorted.length / 2)
+
+	if (sorted.length % 2 === 0) {
+		return (sorted[mid - 1] + sorted[mid]) / 2
+	} else {
+		return sorted[mid]
+	}
+}
+
+/**
+ * Get the Mode of all Numbers in an Array
+ * @example
+ * ```
+ * import { array } from "@rjweb/utils"
+ * 
+ * const arr = [4, 65, 76, 90, 1, -3, 4, 4, 65, 65]
+ * 
+ * array.mode(arr) // 4
+ * ```
+ * @since 1.12.18
+ * @supports nodejs, browser
+*/ export function mode(input: number[]): number {
+	const count = new Map<number, number>()
+
+	for (const num of input) {
+		count.set(num, (count.get(num) ?? 0) + 1)
+	}
+
+	let max = 0
+	let mode = 0
+
+	for (const [key, value] of count) {
+		if (value > max) {
+			max = value
+			mode = key
+		}
+	}
+
+	return mode
+}
+
+/**
  * Get the Sum of Numbers in an Array
  * @example
  * ```

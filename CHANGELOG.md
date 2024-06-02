@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.12.18
+
+- Improve `number.factorial` speed
+- Improve `number.fibonacci` speed
+- Add `number.reduce`
+- Add `array.median`
+- Add `array.mode`
+
 ## 1.12.17
 
 - Add `number.factorial`
