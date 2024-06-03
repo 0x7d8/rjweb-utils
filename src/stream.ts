@@ -10,7 +10,7 @@ import * as streamsWeb from "stream/web"
  * 
  * const readStream = fs.createReadStream('./file.txt')
  * 
- * for await (const chunk of stream.iterator(readStream)) {
+ * for await (const chunk of stream.iterator<Buffer>(readStream)) {
  *   console.log(chunk.toString())
  * }
  * ```

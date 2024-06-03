@@ -1,3 +1,11 @@
+export const GOLDEN_RATIO = 1.618033988749895
+export const E = 2.718281828459045
+export const PI = 3.141592653589793
+export const TAU = 6.283185307179586
+export const PHI = (1 + Math.sqrt(5)) / 2
+export const PSI = (1 - Math.sqrt(5)) / 2
+export const SQRT5 = Math.sqrt(5)
+
 /**
  * Generate a Number
  * @example
@@ -166,39 +174,38 @@
 */ export function prime(input: number): boolean {
 	if (input <= 1) return false
 
-	for (let i = 2; i <= Math.sqrt(input); i++) {
+	const sqrt = Math.sqrt(input)
+
+	for (let i = 2; i <= sqrt; i++) {
 		if (input % i === 0) return false
 	}
 
 	return true
 }
 
-const fibonacciCache = new Map<number, number>()
-
 /**
- * Get the nth number in the fibonacci sequence
+ * Get the nth number in the fibonacci sequence (0-indexed)
  * @example
  * ```
  * import { number } from "@rjweb/utils"
  * 
  * number.fibonacci(5) // 5
  * number.fibonacci(10) // 55
+ * number.fibonacci(0) // 0
+ * number.fibonacci(-1) // 0
+ * number.fibonacci(1) // 1
+ * number.fibonacci(1.5) // 1
+ * number.fibonacci(21.23) // 10946
  * ```
  * @since 1.12.17
  * @supports nodejs, browser
 */ export function fibonacci(input: number): number {
+	input = Math.round(input)
+
 	if (input === 1) return 1
 	else if (input <= 0) return 0
 
-	if (fibonacciCache.has(input)) return fibonacciCache.get(input)!
-
-	const sequence = [0, 1]
-	for (let i = 2; i <= input; i++) {
-		sequence[i] = sequence[i - 1] + sequence[i - 2]
-	}
-
-	fibonacciCache.set(input, sequence[input])
-	return sequence[input]
+	return Math.round(((Math.pow(PHI, input) - Math.pow(PSI, input)) / SQRT5))
 }
 
 /**
@@ -278,8 +285,7 @@ const fibonacciCache = new Map<number, number>()
  * number.power(10, 15) // false
  * ```
 */ export function power(input: number, power: number): boolean {
-	if (input === 0) return false
-	if (power === 0) return false
+	if (input === 0 || power === 0) return false
 
 	return Math.pow(input, Math.round(Math.log(power) / Math.log(input))) === power
 }

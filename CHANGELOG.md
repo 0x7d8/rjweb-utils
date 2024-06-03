@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.12.19
+
+- Improve `number.fibonacci` speed
+- Add `string.kv`
+
 ## 1.12.18
 
 - Improve `number.factorial` speed

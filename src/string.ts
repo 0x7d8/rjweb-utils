@@ -338,6 +338,45 @@ const symbols = Object.freeze('!@#$%^&*()+_-=}{[]|:;"/?.><,`~'.split(''))
 	return parsed
 }
 
+/**
+ * Parse a String into an Object using basic key value syntax
+ * @example
+ * ```
+ * import { string } from "@rjweb/utils"
+ * 
+ * string.kv('K=12') // {K:'12'}
+ * string.kv('E="400"') // {E:'"400"'}
+ * string.kv('sofhjjsihgai') // {sofhjjsihgai:''}
+ * string.kv('hi=ok&eeee=%20') // {hi:'ok', eeee:'%20'}
+ * string.kv('hi=ok&eeee=%20', decodeURIComponent) // {hi:'ok', eeee:' '}
+ * string.kv('aaa&bbb') // {aaa:'', bbb:''}
+ * string.kv('aaa#g.1', null, '#', '.') // {aaa:'', g: '1'}
+ * ```
+ * @since 1.12.19
+ * @supports nodejs, browser
+*/ export function kv(input: string, decode?: ((input: string) => string) | null, seperator?: string | null, equals?: string | null): Record<string, string> {
+	const values: Record<string, string> = {}
+
+	let progress = 0
+	while (progress < input.length) {
+		let splitterPos = input.indexOf(seperator ?? '&', progress)
+		if (splitterPos === -1) splitterPos = input.length
+
+		let equalPos = input.slice(progress, splitterPos).indexOf(equals ?? '=')
+		if (equalPos === -1) equalPos = splitterPos
+
+		let sliced = input.slice(progress + equalPos + 1, splitterPos), decodedVal: string
+		if (decode) try { decodedVal = decode(sliced) } catch { decodedVal = sliced }
+		else decodedVal = sliced
+
+		values[input.slice(progress, progress + equalPos).trim()] = decodedVal
+
+		progress = splitterPos + 1
+	}
+
+	return values
+}
+
 class CompiledVariableParser<Data> {
 	constructor(
 		private variables: Record<string, { args: Record<string, boolean>, handler: (data: Data, args: Record<string, string | undefined>, invalid: (reason: string) => '') => string | Promise<string> }>
