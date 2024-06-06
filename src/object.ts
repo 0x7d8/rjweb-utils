@@ -110,3 +110,31 @@ import { DeepRequired, UnionToIntersection } from "."
 		return acc
 	}, {} as Pick<Object, Keys>)
 }
+
+/**
+ * Order Properties from an Object
+ * 
+ * This function will order the properties of an object based on the provided keys
+ * and return a **NEW** object with the ordered properties.
+ * @example
+ * ```
+ * import { object } from "@rjweb/utils"
+ * 
+ * object.order({ ok: true, e: 0 }, ['e', 'ok']) // { e: 0, ok: true }
+ * object.order({ ok: true, e: 0, aaa: true }, ['ok', 'e']) // { ok: true, e: 0, aaa: true }
+ * ```
+ * @since 1.12.20
+ * @supports nodejs, browser
+*/ export function order<Object extends Record<any, any>, Keys extends keyof Object>(object: Object, keys: Keys[]): Object {
+	const obj = keys.reduce((acc, key) => {
+		acc[key] = object[key]
+
+		return acc
+	}, {} as Record<any, any>)
+
+	Object.keys(object).forEach((key) => {
+		if (!keys.includes(key as any)) obj[key] = object[key]
+	})
+
+	return obj
+}

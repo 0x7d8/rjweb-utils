@@ -326,16 +326,24 @@ const symbols = Object.freeze('!@#$%^&*()+_-=}{[]|:;"/?.><,`~'.split(''))
  * @since 1.10.4
  * @supports nodejs, browser
 */ export function env(input: string): Record<string, string> {
-	const parsed: Record<string, string> = {}
+	let obj: Record<string, string> = {}
 
 	for (const line of input.split('\n')) {
-		const match = line.match(/^\s*([^=\s]+)\s*=\s*(?:(['"])(.*?)\2|([^'"\s]+))\s*(?:#.*)?$/)
-		if (!match) continue
+		const trimmed = line.trim()
+		if (!trimmed || trimmed[0] === '#') continue
 
-		parsed[match[1]] = match[3] || match[4]
+		const equal = trimmed.indexOf('=')
+		if (equal === -1) continue
+
+		const key = trimmed.slice(0, equal),
+			value = trimmed.slice(equal + 1)
+
+		if (!key) continue
+
+		obj[key] = value[0] === '"' && value[value.length - 1] === '"' ? value.slice(1, -1) : value
 	}
 
-	return parsed
+	return obj
 }
 
 /**

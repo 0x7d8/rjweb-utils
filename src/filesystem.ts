@@ -352,3 +352,45 @@ import { as, stream as _stream, string, ArrayOrNot } from "."
 		return stat.size as never
 	}
 }
+
+/**
+ * Replace with Contents of a File
+ * @example
+ * ```
+ * import { filesystem } from "@rjweb/utils"
+ * import fs from "fs"
+ * 
+ * await fs.promises.writeFile('./file.txt', 'Hello World sir')
+ * console.log(await fs.promises.readFile('./file.txt', 'utf8')) // Hello World sir
+ * 
+ * await filesystem.replace('./file.txt', 'Hello World', 'Bye World', { async: true }) // Bye World sir
+ * 
+ * console.log(await fs.promises.readFile('./file.txt', 'utf8')) // Bye World sir
+ * ```
+ * @since 1.12.20
+ * @supports nodejs
+*/ export function replace<Options extends {
+	/**
+	 * Whether to use async fs
+	 * @default true
+	 * @since 1.12.20
+	*/ async?: boolean
+}>(file: fs.PathLike, search: string | RegExp, replace: string, options?: Options): Options['async'] extends false ? string : Promise<string> {
+	if (options?.async ?? true) {
+		return new Promise<string>(async(resolve) => {
+			const content = await fs.promises.readFile(file, 'utf8')
+			const replaced = content.replace(search, replace)
+
+			await fs.promises.writeFile(file, replaced)
+
+			resolve(replaced)
+		}) as never
+	} else {
+		const content = fs.readFileSync(file, 'utf8')
+		const replaced = content.replace(search, replace)
+
+		fs.writeFileSync(file, replaced)
+
+		return replaced as never
+	}
+}

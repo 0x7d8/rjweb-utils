@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.12.20
+
+- Add `filesystem.replace`
+- Add `object.order`
+- Improve `string.env` speed
+
 ## 1.12.19
 
 - Improve `number.fibonacci` speed
