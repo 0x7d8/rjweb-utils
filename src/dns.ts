@@ -12,7 +12,7 @@ type HttpDNSResponse = {
 		name: string
 		type: number
 	}
-	Answer: {
+	Answer?: {
 		name: string
 		type: number
 		TTL: number
@@ -56,16 +56,16 @@ type HttpDNSResponse = {
 		else if (prefer === 'v6' && v6.status === 'fulfilled') return new IPAddress(v6.value[0])
 		else return new IPAddress(v4.status === 'fulfilled' ? v4.value[0] : v6.status === 'fulfilled' ? v6.value[0] : '127.0.0.1')
 	} else {
-		const [ v4, v6 ] = await Promise.allSettled([
+		const [ v4, v6 ] = await Promise.all([
 			fetch(`https://cloudflare-dns.com/dns-query?name=${host}&type=A`, { headers: { accept: 'application/dns-json' } }).then(res => res.json() as Promise<HttpDNSResponse>),
 			fetch(`https://cloudflare-dns.com/dns-query?name=${host}&type=AAAA`, { headers: { accept: 'application/dns-json' } }).then(res => res.json() as Promise<HttpDNSResponse>)
 		])
 
-		if (v4.status === 'rejected' && v6.status === 'rejected') return null
+		if (!v4.Answer && !v6.Answer) return null
 
-		if (prefer === 'v4' && v4.status === 'fulfilled') return new IPAddress(v4.value.Answer[0].data)
-		else if (prefer === 'v6' && v6.status === 'fulfilled') return new IPAddress(v6.value.Answer[0].data)
-		else return new IPAddress(v4.status === 'fulfilled' ? v4.value.Answer[0].data : v6.status === 'fulfilled' ? v6.value.Answer[0].data : '127.0.0.1')
+		if (prefer === 'v4' && v4.Answer) return new IPAddress(v4.Answer[0].data)
+		else if (prefer === 'v6' && v6.Answer) return new IPAddress(v6.Answer[0].data)
+		else return new IPAddress(v4.Answer ? v4.Answer[0].data : v6.Answer ? v6.Answer[0].data : '127.0.0.1')
 	}
 }
 
@@ -96,10 +96,12 @@ type HttpDNSResponse = {
 			if (ip.isIPv4()) {
 				const result = await fetch(`https://cloudflare-dns.com/dns-query?name=${ip.long().split('.').reverse().join('.')}.in-addr.arpa&type=PTR`, { headers: { accept: 'application/dns-json' } }).then(res => res.json() as Promise<HttpDNSResponse>)
 
+				if (!result.Answer) return null
 				return result.Answer[0].data
 			} else {
 				const result = await fetch(`https://cloudflare-dns.com/dns-query?name=${ip.long().split(':').reverse().flatMap((x) => x.split('').reverse().join('.')).join('.')}.ip6.arpa&type=PTR`, { headers: { accept: 'application/dns-json' } }).then(res => res.json() as Promise<HttpDNSResponse>)
 
+				if (!result.Answer) return null
 				return result.Answer[0].data
 			}
 		}

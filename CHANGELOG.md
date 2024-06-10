@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.12.21
+
+- Fix `dns.resolve` issue when using `fetch` mode
+
 ## 1.12.20
 
 - Add `filesystem.replace`

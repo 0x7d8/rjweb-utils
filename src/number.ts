@@ -174,10 +174,15 @@ export const SQRT5 = Math.sqrt(5)
 */ export function prime(input: number): boolean {
 	if (input <= 1) return false
 
-	const sqrt = Math.sqrt(input)
+	const sieve = new Array(input + 1).fill(true)
+	sieve[0] = sieve[1] = false
 
-	for (let i = 2; i <= sqrt; i++) {
-		if (input % i === 0) return false
+	for (let i = 2; i <= input; i++) {
+		if (sieve[i]) {
+			for (let j = i * i; j <= input; j += i) {
+				sieve[j] = false
+			}
+		}
 	}
 
 	return true
@@ -202,7 +207,7 @@ export const SQRT5 = Math.sqrt(5)
 */ export function fibonacci(input: number): number {
 	input = Math.round(input)
 
-	if (input === 1) return 1
+	if (input === 1 || input === 2) return 1
 	else if (input <= 0) return 0
 
 	return Math.round(((Math.pow(PHI, input) - Math.pow(PSI, input)) / SQRT5))

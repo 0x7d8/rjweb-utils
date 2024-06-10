@@ -121,7 +121,13 @@ const symbols = Object.freeze('!@#$%^&*()+_-=}{[]|:;"/?.><,`~'.split(''))
 	const iv = Buffer.alloc(16, 0)
 
 	const deCipher = crypto.createDecipheriv(pOptions.algorithm, crypto.createHash('sha256').update(key).digest('base64').substring(0, 32), iv)
-	const data = Buffer.concat([ deCipher.update(pOptions.input === 'buffer' ? input.toString('hex') : input as string, pOptions.input === 'buffer' ? 'hex' : pOptions.input), deCipher.final() ])
+	const data = Buffer.concat([
+		deCipher.update(pOptions.input === 'buffer'
+			? input.toString('hex') : input as string,
+		pOptions.input === 'buffer'
+			? 'hex' : pOptions.input),
+		deCipher.final()
+	])
 
 	return data.toString()
 }
@@ -239,13 +245,13 @@ const symbols = Object.freeze('!@#$%^&*()+_-=}{[]|:;"/?.><,`~'.split(''))
 	 * @since 1.0.0
   */ exclude?: string[]
 }): string {
-	const full = generate({ length: segments.reduce((a, b) => a + b, 0), numbers: options?.numbers, symbols: options?.symbols, uppercase: options?.uppercase, lowercase: options?.lowercase, exclude: options?.exclude })
+	const full = generate({ length: segments.reduce((a, b) => a + b, 0), ...options })
 
 	let result = '',
 		index = 0
 
 	for (const segment of segments) {
-		result += full.slice(index, index + segment) + seperator
+		result += full.slice(index, index + segment).concat(seperator)
 		index += segment
 	}
 
@@ -340,7 +346,8 @@ const symbols = Object.freeze('!@#$%^&*()+_-=}{[]|:;"/?.><,`~'.split(''))
 
 		if (!key) continue
 
-		obj[key] = value[0] === '"' && value[value.length - 1] === '"' ? value.slice(1, -1) : value
+		obj[key] = value[0] === '"' && value[value.length - 1] === '"'
+			? value.slice(1, -1) : value
 	}
 
 	return obj
