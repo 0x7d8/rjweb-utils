@@ -74,6 +74,7 @@ function cpuAverage() {
  * ```
  * @since 1.3.1
  * @supports nodejs
+ * @default captureTime = 250
 */ export async function cpu(captureTime: number = 250): Promise<number> {
 	return new Promise((resolve) => {
 		const startUsage = cpuAverage()

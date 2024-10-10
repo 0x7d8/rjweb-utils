@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.12.23
+
+- Add more default jsdocs
+- Add `<IPAddress>.toString`
+- Add `<Subnet>.toString`
+
 ## 1.12.22
 
 - Add `number.fraction`

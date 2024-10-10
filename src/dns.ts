@@ -41,7 +41,10 @@ type HttpDNSResponse = {
  * ```
  * @since 1.8.0
  * @supports nodejs, browser
-*/ export async function resolve(host: string, prefer: 'v4' | 'v6' = 'v4', mode: 'dns' | 'fetch'): Promise<IPAddress | null> {
+ * @default
+ * prefer = 'v4'
+ * mode = 'fetch'
+*/ export async function resolve(host: string, prefer: 'v4' | 'v6' = 'v4', mode: 'dns' | 'fetch' = 'fetch'): Promise<IPAddress | null> {
 	if (isIP(host)) return new IPAddress(host)
 
 	if (mode === 'dns') {
@@ -86,7 +89,8 @@ type HttpDNSResponse = {
  * ```
  * @since 1.10.5
  * @supports nodejs, browser
-*/ export async function reverse(ip: IPAddress, mode: 'dns' | 'fetch'): Promise<string | null> {
+ * @default mode = 'fetch'
+*/ export async function reverse(ip: IPAddress, mode: 'dns' | 'fetch' = 'fetch'): Promise<string | null> {
 	try {
 		if (mode === 'dns') {
 			const result = await dns.promises.reverse(ip.long())

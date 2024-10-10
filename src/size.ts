@@ -80,6 +80,7 @@ class Size<Amount extends number, Factor extends 1000 | 1024 = 1024> {
  * ```
  * @since 1.6.0
  * @supports nodejs, browser
+ * @default factor = 1024
 */ export default function size<Amount extends number, Factor extends 1000 | 1024 = 1024>(amount: Amount, factor?: Factor): Size<Amount, Factor> {
 	return new Size<Amount, Factor>(amount, factor ?? 1024 as never)
 }

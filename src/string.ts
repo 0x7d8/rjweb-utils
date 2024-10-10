@@ -272,6 +272,7 @@ const symbols = Object.freeze('!@#$%^&*()+_-=}{[]|:;"/?.><,`~'.split(''))
  * ```
  * @since 1.0.0
  * @supports nodejs, browser
+ * @default end = '...'
 */ export function limit(input: string, length: number, end: string = '...'): string {
 	const trimmed = input.trimStart()
 	

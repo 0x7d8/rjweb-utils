@@ -38,7 +38,7 @@ export const MAX_IPV4_LONG = 4294967295,
 	 * import { network } from "@rjweb/utils"
 	 * 
 	 * const subnet = new network.Subnet('127.0.0.1/24')
-	 * subnet.type // 4
+	 * subnet.isIPv4() // true
 	 * 
 	 * subnet.size() // 255n
 	 * subnet.first() // <IPAddress v4 127.0.0.0>
@@ -272,6 +272,10 @@ export const MAX_IPV4_LONG = 4294967295,
 		}
 	}
 
+	protected toString(): string {
+		return this.first().usual().concat('/', this.netmask.toString())
+	}
+
 	protected [inspectSymbol](): string {
 		return `<Subnet v${this.type} /${this.netmask} ${this.first().usual()}->${this.last().usual()}>`
 	}
@@ -284,7 +288,8 @@ export const MAX_IPV4_LONG = 4294967295,
  * import { network } from "@rjweb/utils"
  * 
  * const ip = new network.IPAddress('127.1')
- * ip.type // 4
+ * ip.isIPv4() // true
+ * 
  * ip.long() // 127.0.0.1
  * ip.short() // 127.1
  * ```
@@ -582,6 +587,10 @@ export const MAX_IPV4_LONG = 4294967295,
 		return true
 	}
 
+	protected toString(): string {
+		return this.usual()
+	}
+
 	protected [inspectSymbol](): string {
 		return `<IPAddress v${this.type} ${this.usual()}>`
 	}
@@ -599,6 +608,7 @@ export const MAX_IPV4_LONG = 4294967295,
  * @returns ms it took to connect or false if failed
  * @since 1.1.0
  * @supports nodejs
+ * @default timeout = 10000
 */ export function test(host: string | IPAddress, port: number, timeout: number = 10000): Promise<number | false> {
 	return new Promise((resolve) => {
 		const start = performance.now()
