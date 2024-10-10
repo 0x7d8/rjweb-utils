@@ -311,3 +311,35 @@ export const SQRT5 = Math.sqrt(5)
 
 	return [numerator / _gcd, denominator / _gcd]
 }
+
+/**
+ * Turn a number into a fraction
+ * @example
+ * ```
+ * import { number } from "@rjweb/utils"
+ * 
+ * number.fraction(0.5) // [1, 2]
+ * number.fraction(0.6666666666666666) // [2, 3]
+ * ```
+ * @since 1.12.22
+ * @supports nodejs, browser
+ * @default tolerance = 1.0E-3 // 0.001
+*/ export function fraction(input: number, tolerance = 1.0E-3): [number, number] {
+	if (!Number.isFinite(input)) return [input, 1]
+
+	let h1 = 1, h2 = 0, k1 = 0, k2 = 1, b = input
+
+	do {
+		const a = Math.floor(b)
+		let aux = h1
+
+		h1 = a * h1 + h2
+		h2 = aux
+		aux = k1
+		k1 = a * k1 + k2
+		k2 = aux
+		b = 1 / (b - a)
+	} while (Math.abs(input - h1 / k1) > input * tolerance)
+
+	return [h1, k1]
+}
