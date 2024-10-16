@@ -152,8 +152,9 @@ import { as, stream as _stream, string, ArrayOrNot } from "."
 	*/ async?: boolean
 }>(file: fs.PathLike, options?: Options): Options['async'] extends false ? Record<string, string> : Promise<Record<string, string>> {
 	if (options?.async ?? true) {
-		return new Promise(async(resolve) => {
-			const content = await fs.promises.readFile(file, 'utf8')
+		return new Promise(async(resolve, reject) => {
+			const content = await fs.promises.readFile(file, 'utf8').catch(reject)
+			if (content === undefined) return
 
 			return resolve(string.env(content))
 		}) as any

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.12.24
+
+- Properly error on `filesystem.env`
+
 ## 1.12.23
 
 - Add more default jsdocs
