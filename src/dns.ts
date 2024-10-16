@@ -98,12 +98,12 @@ type HttpDNSResponse = {
 			return result[0]
 		} else {
 			if (ip.isIPv4()) {
-				const result = await fetch(`https://cloudflare-dns.com/dns-query?name=${ip.long().split('.').reverse().join('.')}.in-addr.arpa&type=PTR`, { headers: { accept: 'application/dns-json' } }).then(res => res.json() as Promise<HttpDNSResponse>)
+				const result = await fetch(`https://cloudflare-dns.com/dns-query?name=${ip.reverse()}&type=PTR`, { headers: { accept: 'application/dns-json' } }).then(res => res.json() as Promise<HttpDNSResponse>)
 
 				if (!result.Answer) return null
 				return result.Answer[0].data
 			} else {
-				const result = await fetch(`https://cloudflare-dns.com/dns-query?name=${ip.long().split(':').reverse().flatMap((x) => x.split('').reverse().join('.')).join('.')}.ip6.arpa&type=PTR`, { headers: { accept: 'application/dns-json' } }).then(res => res.json() as Promise<HttpDNSResponse>)
+				const result = await fetch(`https://cloudflare-dns.com/dns-query?name=${ip.reverse()}&type=PTR`, { headers: { accept: 'application/dns-json' } }).then(res => res.json() as Promise<HttpDNSResponse>)
 
 				if (!result.Answer) return null
 				return result.Answer[0].data

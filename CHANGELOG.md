@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.12.25
+
+- Add support for hex notation in `network.IPAddress`
+- Add `network.IPAddress.hex`
+- Add `network.IPAddress.reverse`
+
 ## 1.12.24
 
 - Properly error on `filesystem.env`

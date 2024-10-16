@@ -399,6 +399,10 @@ export const MAX_IPV4_LONG = 4294967295,
 					}
 
 					case 1: {
+						if (isNaN(ints[0])) {
+							ints[0] = parseInt(segments[0], 16)
+						}
+
 						this.rawData.set([
 							(ints[0] >> 24) & 0xFF,
 							(ints[0] >> 16) & 0xFF,
@@ -446,7 +450,12 @@ export const MAX_IPV4_LONG = 4294967295,
 						this.rawData.set(ints as number[])
 					}
 				} else {
-					const int = BigInt(segments[0])
+					let int: bigint
+					try {
+						int = BigInt(segments[0])
+					} catch {
+						int = BigInt('0x'.concat(segments[0]))
+					}
 
 					this.rawData.set([
 						Number((int >> BigInt(112)) & BigInt(0xFFFF)),
@@ -561,6 +570,28 @@ export const MAX_IPV4_LONG = 4294967295,
 	}
 
 	/**
+	 * Get the Hexadecimal Representation of this IP
+	 * @since 1.12.25
+	*/ public hex(): string {
+		if (this.type === 4) {
+			return Array.from(this.rawData).map((x) => x.toString(16).padStart(2, '0')).join('').toUpperCase()
+		} else {
+			return Array.from(this.rawData).map((x) => x.toString(16).padStart(4, '0')).join('').toUpperCase()
+		}
+	}
+
+	/**
+	 * Get the Reverse Representation of this IP for PTR Records
+	 * @since 1.12.25
+	*/ public reverse(): string {
+		if (this.type === 4) {
+			return this.long().split('.').reverse().join('.').concat('.in-addr.arpa')
+		} else {
+			return this.long().split(':').reverse().flatMap((x) => x.split('').reverse().join('.')).join('.').concat('.ip6.arpa')
+		}
+	}
+
+	/**
 	 * Whether this IP Equals another IP
 	 * @since 1.8.5
 	*/ public equals(compareTo: IPAddress): compareTo is this {
@@ -653,8 +684,13 @@ function checkV4(ip: string): boolean {
 		}
 	} else {
 		const int = parseInt(ip)
-		if (isNaN(int)) return false
-		if (int < 0 || int > MAX_IPV4_LONG) return false
+
+		if (isNaN(int)) {
+			const hex = parseInt(ip, 16)
+
+			if (isNaN(hex)) return false
+			if (hex < 0 || hex > MAX_IPV4_LONG) return false
+		} else if (int < 0 || int > MAX_IPV4_LONG) return false
 	}
 
 	return true
@@ -705,8 +741,13 @@ function checkV4(ip: string): boolean {
 			if (doubleSegments === 0 && segments.length !== 8) return false
 		} else {
 			try {
-				const int = BigInt(ip)
-				if (int < 0 || int > MAX_IPV6_LONG) return false
+				try {
+					const int = BigInt(ip)
+					if (int < 0 || int > MAX_IPV6_LONG) return false
+				} catch {
+					const int = BigInt('0x'.concat(ip))
+					if (int < 0 || int > MAX_IPV6_LONG) return false
+				}
 			} catch {
 				return false
 			}
