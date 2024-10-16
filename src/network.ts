@@ -3,6 +3,16 @@ import * as fs from "fs"
 import { ArrayOrNot, as } from "."
 import * as crypto from "crypto"
 
+const hexChars = '0123456789ABCDEFabcdef'
+
+function fullyHex(hex: string): boolean {
+	for (const char of hex) {
+		if (!hexChars.includes(char)) return false
+	}
+
+	return true
+}
+
 const inspectSymbol = Symbol.for('nodejs.util.inspect.custom')
 
 export const MAX_IPV4_LONG = 4294967295,
@@ -451,11 +461,8 @@ export const MAX_IPV4_LONG = 4294967295,
 					}
 				} else {
 					let int: bigint
-					try {
-						int = BigInt(segments[0])
-					} catch {
-						int = BigInt('0x'.concat(segments[0]))
-					}
+					if (!fullyHex(segments[0])) int = BigInt(segments[0])
+					else int = BigInt('0x'.concat(segments[0]))
 
 					this.rawData.set([
 						Number((int >> BigInt(112)) & BigInt(0xFFFF)),
@@ -683,14 +690,10 @@ function checkV4(ip: string): boolean {
 			if (int < 0 || int > 0xFF) return false
 		}
 	} else {
-		const int = parseInt(ip)
+		const int = parseInt(ip, fullyHex(ip) ? 16 : 10)
 
-		if (isNaN(int)) {
-			const hex = parseInt(ip, 16)
-
-			if (isNaN(hex)) return false
-			if (hex < 0 || hex > MAX_IPV4_LONG) return false
-		} else if (int < 0 || int > MAX_IPV4_LONG) return false
+		if (isNaN(int)) return false
+		if (int < 0 || int > MAX_IPV4_LONG) return false
 	}
 
 	return true

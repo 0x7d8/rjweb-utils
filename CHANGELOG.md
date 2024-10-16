@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.12.26
+
+- Make sure hex ips have to be fully hex
+
 ## 1.12.25
 
 - Add support for hex notation in `network.IPAddress`
