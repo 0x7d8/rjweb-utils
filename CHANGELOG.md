@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.12.27
+
+- Add `number.toRadians`
+- Add `number.toDegrees`
+- Add `number.cos`
+- Add `number.acos`
+- Add `number.sin`
+- Add `number.asin`
+- Add `number.tan`
+- Add `number.atan`
+
 ## 1.12.26
 
 - Make sure hex ips have to be fully hex
