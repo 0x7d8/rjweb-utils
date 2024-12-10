@@ -325,7 +325,7 @@ export const SQRT5 = Math.sqrt(5)
  * @supports nodejs, browser
  * @default tolerance = 1.0E-3 // 0.001
 */ export function fraction(input: number, tolerance = 1.0E-3): [number, number] {
-	if (!Number.isFinite(input)) return [input, 1]
+	if (!Number.isFinite(input) || Number.isInteger(input)) return [input, 1]
 
 	let h1 = 1, h2 = 0, k1 = 0, k2 = 1, b = input
 
@@ -342,4 +342,127 @@ export const SQRT5 = Math.sqrt(5)
 	} while (Math.abs(input - h1 / k1) > input * tolerance)
 
 	return [h1, k1]
+}
+
+/**
+ * Turn given number (degrees) into radians
+ * @example
+ * ```
+ * import { number } from "@rjweb/utils"
+ * 
+ * number.toRadians(180) // 3.141592653589793
+ * number.toRadians(90) // 1.5707963267948966
+ * ```
+ * @since 1.12.27
+ * @supports nodejs, browser
+*/ export function toRadians(input: number): number {
+	return input * (PI / 180)
+}
+
+/**
+ * Turn given number (radians) into degrees
+ * @example
+ * ```
+ * import { number } from "@rjweb/utils"
+ * 
+ * number.toDegrees(3.141592653589793) // 180
+ * number.toDegrees(1.5707963267948966) // 90
+ * ```
+ * @since 1.12.27
+ * @supports nodejs, browser
+*/ export function toDegrees(input: number): number {
+	return input * (180 / PI)
+}
+
+/**
+ * Get the sine of a number (in degrees)
+ * @example
+ * ```
+ * import { number } from "@rjweb/utils"
+ * 
+ * number.sin(0) // 0
+ * number.sin(90) // 1
+ * number.sin(45) // 0.7071067811865476
+ * ```
+ * @since 1.12.27
+ * @supports nodejs, browser
+*/ export function sin(input: number): number {
+	return round(Math.sin(toRadians(input)), 10)
+}
+
+/**
+ * Get the inverse sine of a number (in degrees)
+ * @example
+ * ```
+ * import { number } from "@rjweb/utils"
+ * 
+ * number.asin(0) // 0
+ * number.asin(1) // 90
+ * number.asin(0.7071067811865476) // 45
+ * ```
+ * @since 1.12.27
+ * @supports nodejs, browser
+*/ export function asin(input: number): number {
+	return round(toDegrees(Math.asin(input)), 10)
+}
+
+/**
+ * Get the cosine of a number (in degrees)
+ * @example
+ * ```
+ * import { number } from "@rjweb/utils"
+ * 
+ * number.cos(0) // 1
+ * number.cos(90) // 0
+ * ```
+ * @since 1.12.27
+ * @supports nodejs, browser
+*/ export function cos(input: number): number {
+	return round(Math.cos(toRadians(input)), 10)
+}
+
+/**
+ * Get the inverse cosine of a number (in degrees)
+ * @example
+ * ```
+ * import { number } from "@rjweb/utils"
+ * 
+ * number.acos(1) // 0
+ * number.acos(0) // 90
+ * number.acos(0.7071067811865476) // 45
+ * ```
+ * @since 1.12.27
+ * @supports nodejs, browser
+*/ export function acos(input: number): number {
+	return round(toDegrees(Math.acos(input)), 10)
+}
+
+/**
+ * Get the tangent of a number (in degrees)
+ * @example
+ * ```
+ * import { number } from "@rjweb/utils"
+ * 
+ * number.tan(0) // 0
+ * number.tan(45) // 1
+ * ```
+ * @since 1.12.27
+ * @supports nodejs, browser
+*/ export function tan(input: number): number {
+	return round(Math.tan(toRadians(input)), 10)
+}
+
+/**
+ * Get the inverse tangent of a number (in degrees)
+ * @example
+ * ```
+ * import { number } from "@rjweb/utils"
+ * 
+ * number.atan(0) // 0
+ * number.atan(1) // 45
+ * ```
+ * @since 1.12.27
+ * @supports nodejs, browser
+*/ export function atan(input: number): number {
+	return round(toDegrees(Math.atan(input)), 10)
 }
