@@ -2,9 +2,9 @@ export const GOLDEN_RATIO = 1.618033988749895
 export const E = 2.718281828459045
 export const PI = 3.141592653589793
 export const TAU = 6.283185307179586
-export const PHI = (1 + Math.sqrt(5)) / 2
-export const PSI = (1 - Math.sqrt(5)) / 2
 export const SQRT5 = Math.sqrt(5)
+export const PHI = (1 + SQRT5) / 2
+export const PSI = (1 - SQRT5) / 2
 
 /**
  * Generate a Number

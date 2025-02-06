@@ -1,6 +1,6 @@
 {
   "name": "@rjweb/utils",
-  "version": "1.12.27",
+  "version": "1.12.28",
   "description": "Easy and Lightweight Utilities",
   "module": "lib/esm/index.js",
   "main": "lib/cjs/index.js",

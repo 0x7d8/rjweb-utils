@@ -289,3 +289,26 @@ import * as number from "./number"
 
 	return arr
 }
+
+/**
+ * Split an Array into chunks
+ * @example
+ * ```
+ * import { array } from "@rjweb/utils"
+ * 
+ * const arr = ['A', 'B', 'C', 'D', 'E']
+ * 
+ * array.chunk(arr, 2) // [['A', 'B'], ['C', 'D'], ['E']]
+ * array.chunk(arr, 3) // [['A', 'B', 'C'], ['D', 'E']]
+ * ```
+ * @since 1.12.28
+ * @supports nodejs, browser
+*/ export function chunk<Arr extends any[]>(input: Arr, size: number): Arr[] {
+	const chunks = []
+
+	for (let i = 0; i < input.length; i += size) {
+		chunks.push(input.slice(i, i + size))
+	}
+
+	return chunks as never
+}
