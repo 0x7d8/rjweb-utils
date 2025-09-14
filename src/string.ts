@@ -31,7 +31,7 @@ const symbols = Object.freeze('!@#$%^&*()+_-=}{[]|:;"/?.><,`~'.split(''))
 	 * @default "hex"
 	 * @since 1.0.0
 	*/ output?: crypto.BinaryToTextEncoding | 'buffer'
-}>(input: string, options?: Options): Options['algorithm'] extends Array<any>
+}>(input: crypto.BinaryLike, options?: Options): Options['algorithm'] extends Array<any>
 ? { [Key in Options['algorithm'][number]]: Options['output'] extends 'buffer' ? Buffer : string }
 : Options['output'] extends 'buffer' ? Buffer : string {
 	const pOptions = {
